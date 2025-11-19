@@ -158,9 +158,15 @@ class TestExportingAndStorage(unittest.TestCase):
         with open(self.test_file, 'w') as f:
             json.dump([self.packet_data], f, indent=2)
 
+        # Get file size after export
+        exported_file_size = os.path.getsize(self.test_file)
+
         # Read it back
         with open(self.test_file, 'r') as f:
             loaded_data = json.load(f)
+
+        # Get file size after reading (should be same)
+        imported_file_size = os.path.getsize(self.test_file)
 
         loaded_packet = loaded_data[0]
 
@@ -168,6 +174,14 @@ class TestExportingAndStorage(unittest.TestCase):
         print("READING EXPORTED REAL PACKET DATA:")
         print("="*70)
         print(f"  Import Path: {self.test_file}")
+        print(f"\n  File Size Verification:")
+        print(f"    Exported File Size: {exported_file_size} bytes")
+        print(f"    Imported File Size: {imported_file_size} bytes")
+        print(f"    Match: {'✓' if exported_file_size == imported_file_size else '✗'}")
+
+        # Verify file sizes match
+        self.assertEqual(exported_file_size, imported_file_size,
+                        "File size should not change after reading")
 
         # Show side-by-side comparison
         print("\n" + "-"*70)

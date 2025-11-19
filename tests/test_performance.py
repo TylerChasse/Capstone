@@ -72,14 +72,11 @@ class TestPerformance(unittest.TestCase):
         try:
             capture = pyshark.LiveCapture(interface=self.active_interface['path'])
             packets = []
-            target_count = 100
             
             start_time = time.time()
             
             def packet_handler(packet):
                 packets.append(packet)
-                if len(packets) >= target_count:
-                    return
             
             try:
                 capture.apply_on_packets(packet_handler, timeout=30)
@@ -187,7 +184,7 @@ class TestPerformance(unittest.TestCase):
         try:
             capture = pyshark.LiveCapture(interface=self.active_interface['path'])
             packets = []
-            error_count = 0
+            error_count = [0]
             
             def packet_handler(packet):
                 try:
@@ -196,7 +193,7 @@ class TestPerformance(unittest.TestCase):
                     _ = packet.length
                     packets.append(packet)
                 except Exception:
-                    error_count += 1
+                    error_count[0] += 1
             
             print(f"\n  Capturing for 10 seconds...")
             start_time = time.time()
@@ -210,7 +207,7 @@ class TestPerformance(unittest.TestCase):
             capture.close()
             
             elapsed = end_time - start_time
-            total_processed = len(packets) + error_count
+            total_processed = len(packets) + error_count[0]
             success_rate = (len(packets) / total_processed * 100) if total_processed > 0 else 0
             
             print(f"\n  Results:")
