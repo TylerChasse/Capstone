@@ -7,10 +7,19 @@ import unittest
 import os
 import json
 import tempfile
-import pyshark
-import subprocess
-import re
-import time
+import sys
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from packet_capture import (
+    get_interface_device,
+    PacketCapture,
+    CaptureConfig,
+    parse_packet,
+    format_packet_dict,
+)
+from helpers import get_connected_interfaces
 
 
 class TestExportingAndStorage(unittest.TestCase):
@@ -25,79 +34,35 @@ class TestExportingAndStorage(unittest.TestCase):
         self.packet_data = None
 
         try:
-            result = subprocess.run(['tshark', '-D'],
-                                  capture_output=True,
-                                  text=True,
-                                  timeout=5)
+            interfaces, interface_map = get_connected_interfaces()
 
-            interfaces = []
-            pattern = r'(\d+)\.\s+(.+?)\s+\((.+?)\)'
+            for display_name in interfaces:
+                interface_path = get_interface_device(display_name, interface_map)
 
-            for line in result.stdout.strip().split('\n'):
-                match = re.match(pattern, line)
-                if match:
-                    number, device_path, friendly_name = match.groups()
-                    interfaces.append({
-                        'path': device_path,
-                        'name': friendly_name
-                    })
-
-            # Try to capture a packet from any interface
-            for interface_info in interfaces:
-                capture = None
                 try:
-                    capture = pyshark.LiveCapture(interface=interface_info['path'])
-                    packets_collected = []
+                    config = CaptureConfig(
+                        interface=interface_path,
+                        packet_count=1,
+                        timeout=30
+                    )
+                    capture = PacketCapture(config)
+                    packets = []
 
-                    def packet_handler(packet):
-                        packets_collected.append(packet)
+                    def packet_handler(packet, number):
+                        packets.append((packet, number))
 
-                    try:
-                        capture.apply_on_packets(packet_handler, timeout=2)
-                    except:
-                        pass
+                    capture.start(packet_handler)
 
-                    if capture:
-                        capture.close()
-                        time.sleep(0.1)
-
-                    # Convert first packet to dict for export
-                    if packets_collected:
-                        packet = packets_collected[0]
-                        self.packet_data = {
-                            'number': packet.number,
-                            'timestamp': str(packet.sniff_time),
-                            'length': packet.length,
-                            'layers': [str(layer.layer_name) for layer in packet.layers]  # Convert to strings
-                        }
-
-                        # Add IP info if available
-                        if hasattr(packet, 'ip'):
-                            self.packet_data['src_ip'] = packet.ip.src
-                            self.packet_data['dst_ip'] = packet.ip.dst
-
-                        # Add transport info if available
-                        if hasattr(packet, 'tcp'):
-                            self.packet_data['protocol'] = 'TCP'
-                            self.packet_data['src_port'] = packet.tcp.srcport
-                            self.packet_data['dst_port'] = packet.tcp.dstport
-                        elif hasattr(packet, 'udp'):
-                            self.packet_data['protocol'] = 'UDP'
-                            self.packet_data['src_port'] = packet.udp.srcport
-                            self.packet_data['dst_port'] = packet.udp.dstport
-
+                    if packets:
+                        packet, num = packets[0]
+                        packet_info = parse_packet(packet, num)
+                        self.packet_data = format_packet_dict(packet_info)
                         break
 
-                except:
-                    if capture:
-                        try:
-                            capture.close()
-                            time.sleep(0.1)
-                        except:
-                            pass
+                except Exception:
                     continue
 
-        except:
+        except (FileNotFoundError, RuntimeError):
             pass
 
     def tearDown(self):
@@ -110,19 +75,21 @@ class TestExportingAndStorage(unittest.TestCase):
         """Format packet data for display"""
         output = []
         output.append(f"\n  {title}:")
-        output.append(f"    Packet Number: {packet_data['number']}")
-        output.append(f"    Timestamp: {packet_data['timestamp']}")
-        output.append(f"    Length: {packet_data['length']} bytes")
-        output.append(f"    Layers: {packet_data['layers']}")
+        output.append(f"    Number: {packet_data.get('number')}")
+        output.append(f"    Timestamp: {packet_data.get('timestamp')}")
+        output.append(f"    Length: {packet_data.get('length')} bytes")
+        output.append(f"    Layers: {packet_data.get('layers')}")
+        output.append(f"    Protocol: {packet_data.get('protocol')}")
 
-        if 'src_ip' in packet_data and 'dst_ip' in packet_data:
-            output.append(f"    Source IP: {packet_data['src_ip']}")
-            output.append(f"    Destination IP: {packet_data['dst_ip']}")
+        if packet_data.get('network'):
+            net = packet_data['network']
+            output.append(f"    Source IP: {net.get('src_ip')}")
+            output.append(f"    Destination IP: {net.get('dst_ip')}")
 
-        if 'protocol' in packet_data:
-            output.append(f"    Protocol: {packet_data['protocol']}")
-            output.append(f"    Source Port: {packet_data['src_port']}")
-            output.append(f"    Destination Port: {packet_data['dst_port']}")
+        if packet_data.get('transport'):
+            transport = packet_data['transport']
+            output.append(f"    Source Port: {transport.get('src_port')}")
+            output.append(f"    Destination Port: {transport.get('dst_port')}")
 
         return '\n'.join(output)
 
@@ -131,9 +98,9 @@ class TestExportingAndStorage(unittest.TestCase):
         if not self.packet_data:
             self.skipTest("No packet captured for export test")
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("EXPORTING REAL PACKET DATA TO JSON:")
-        print("="*70)
+        print("=" * 70)
         print(f"  Export Path: {self.test_file}")
         print(self._format_packet_info(self.packet_data, "Original Packet Data"))
 
@@ -142,9 +109,9 @@ class TestExportingAndStorage(unittest.TestCase):
             json.dump([self.packet_data], f, indent=2)
 
         file_size = os.path.getsize(self.test_file)
-        print(f"\n  Export Status: ✓ Success")
+        print(f"\n  Export Status: Success")
         print(f"  File Size: {file_size} bytes")
-        print("="*70)
+        print("=" * 70)
 
         self.assertTrue(os.path.exists(self.test_file))
         self.assertGreater(file_size, 0)
@@ -170,58 +137,108 @@ class TestExportingAndStorage(unittest.TestCase):
 
         loaded_packet = loaded_data[0]
 
-        print("\n" + "="*70)
+        print("\n" + "=" * 70)
         print("READING EXPORTED REAL PACKET DATA:")
-        print("="*70)
+        print("=" * 70)
         print(f"  Import Path: {self.test_file}")
         print(f"\n  File Size Verification:")
         print(f"    Exported File Size: {exported_file_size} bytes")
         print(f"    Imported File Size: {imported_file_size} bytes")
-        print(f"    Match: {'✓' if exported_file_size == imported_file_size else '✗'}")
+        match_status = "Yes" if exported_file_size == imported_file_size else "No"
+        print(f"    Match: {match_status}")
 
         # Verify file sizes match
         self.assertEqual(exported_file_size, imported_file_size,
-                        "File size should not change after reading")
+                         "File size should not change after reading")
 
         # Show side-by-side comparison
-        print("\n" + "-"*70)
+        print("\n" + "-" * 70)
         print("COMPARISON: ORIGINAL vs IMPORTED")
-        print("-"*70)
+        print("-" * 70)
 
         # Format both packets identically
         print(self._format_packet_info(self.packet_data, "ORIGINAL PACKET"))
         print(self._format_packet_info(loaded_packet, "IMPORTED PACKET"))
 
         # Detailed field comparison
-        print("\n" + "-"*70)
+        print("\n" + "-" * 70)
         print("FIELD-BY-FIELD VERIFICATION:")
-        print("-"*70)
+        print("-" * 70)
 
-        # Check each field
-        fields_to_check = ['number', 'timestamp', 'length', 'layers']
-        if 'src_ip' in self.packet_data:
-            fields_to_check.extend(['src_ip', 'dst_ip'])
-        if 'protocol' in self.packet_data:
-            fields_to_check.extend(['protocol', 'src_port', 'dst_port'])
+        # Check top-level fields
+        fields_to_check = ['number', 'timestamp', 'length', 'layers', 'protocol']
 
         all_match = True
         for field in fields_to_check:
-            original = str(self.packet_data[field])
-            imported = str(loaded_packet[field])
+            original = str(self.packet_data.get(field))
+            imported = str(loaded_packet.get(field))
             match = original == imported
             all_match = all_match and match
-            status = "✓" if match else "✗"
-            print(f"  {field:20s} {status} {'Match' if match else 'MISMATCH'}")
+            status = "Match" if match else "MISMATCH"
+            print(f"  {field:20s} {status}")
 
-        print("-"*70)
-        print(f"\n  Overall Status: {'✓ All fields match perfectly!' if all_match else '✗ Some fields do not match'}")
-        print("="*70)
+        print("-" * 70)
+        overall_status = "All fields match perfectly!" if all_match else "Some fields do not match"
+        print(f"\n  Overall Status: {overall_status}")
+        print("=" * 70)
 
         # Assertions
         self.assertEqual(len(loaded_data), 1)
         for field in fields_to_check:
-            self.assertEqual(str(loaded_packet[field]), str(self.packet_data[field]),
-                           f"Field '{field}' should match")
+            self.assertEqual(str(loaded_packet.get(field)), str(self.packet_data.get(field)),
+                             f"Field '{field}' should match")
+
+    def test_format_packet_dict_structure(self):
+        """Test that format_packet_dict produces correct structure"""
+        if not self.packet_data:
+            self.skipTest("No packet captured for structure test")
+
+        print("\n" + "=" * 70)
+        print("PACKET DICT STRUCTURE TEST:")
+        print("=" * 70)
+
+        # Check required top-level keys
+        required_keys = ['number', 'timestamp', 'length', 'layers', 'protocol',
+                         'network', 'transport', 'arp', 'application']
+
+        print("\n  Checking required keys:")
+        for key in required_keys:
+            exists = key in self.packet_data
+            status = "Present" if exists else "Missing"
+            print(f"    {key}: {status}")
+            self.assertIn(key, self.packet_data)
+
+        print("=" * 70)
+
+    def test_multiple_packets_export(self):
+        """Test exporting multiple packets"""
+        if not self.packet_data:
+            self.skipTest("No packet captured for multi-export test")
+
+        # Create multiple packet entries
+        packets = [self.packet_data.copy() for _ in range(3)]
+        for i, pkt in enumerate(packets, 1):
+            pkt['number'] = i
+
+        # Export
+        with open(self.test_file, 'w') as f:
+            json.dump(packets, f, indent=2)
+
+        # Read back
+        with open(self.test_file, 'r') as f:
+            loaded = json.load(f)
+
+        print("\n" + "=" * 70)
+        print("MULTIPLE PACKETS EXPORT TEST:")
+        print("=" * 70)
+        print(f"  Packets exported: {len(packets)}")
+        print(f"  Packets loaded: {len(loaded)}")
+        print(f"  Match: {'Yes' if len(packets) == len(loaded) else 'No'}")
+        print("=" * 70)
+
+        self.assertEqual(len(loaded), 3)
+        for i, pkt in enumerate(loaded, 1):
+            self.assertEqual(pkt['number'], i)
 
 
 if __name__ == '__main__':

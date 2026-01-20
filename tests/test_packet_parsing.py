@@ -4,10 +4,22 @@ Tests the ability to extract information from captured packets
 """
 
 import unittest
-import pyshark
-import subprocess
-import re
-import time
+import sys
+import os
+
+# Add parent directory to path for imports
+sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
+
+from packet_capture import (
+    get_interface_device,
+    PacketCapture,
+    CaptureConfig,
+    parse_packet,
+    format_packet_text,
+    format_packet_dict,
+    PacketInfo,
+)
+from helpers import get_connected_interfaces
 
 
 class TestPacketParsing(unittest.TestCase):
@@ -16,144 +28,173 @@ class TestPacketParsing(unittest.TestCase):
     def setUp(self):
         """Capture a real packet for testing"""
         try:
-            result = subprocess.run(['tshark', '-D'],
-                                    capture_output=True,
-                                    text=True,
-                                    timeout=5)
-
-            self.interfaces = []
-            pattern = r'(\d+)\.\s+(.+?)\s+\((.+?)\)'
-
-            for line in result.stdout.strip().split('\n'):
-                match = re.match(pattern, line)
-                if match:
-                    number, device_path, friendly_name = match.groups()
-                    self.interfaces.append({
-                        'path': device_path,
-                        'name': friendly_name
-                    })
-        except:
-            self.interfaces = []
+            interfaces, interface_map = get_connected_interfaces()
+        except (FileNotFoundError, RuntimeError):
+            self.packet = None
+            self.packet_info = None
+            return
 
         # Try to capture a real packet
         self.packet = None
-        self.capture = None
+        self.packet_info = None
 
-        for interface_info in self.interfaces:
-            capture = None
+        for display_name in interfaces:
+            interface_path = get_interface_device(display_name, interface_map)
+
             try:
-                capture = pyshark.LiveCapture(interface=interface_info['path'])
-                packets_collected = []
+                config = CaptureConfig(
+                    interface=interface_path,
+                    packet_count=1,
+                    timeout=30
+                )
+                capture = PacketCapture(config)
+                packets = []
 
-                def packet_handler(packet):
-                    packets_collected.append(packet)
+                def packet_handler(packet, number):
+                    packets.append((packet, number))
 
-                try:
-                    capture.apply_on_packets(packet_handler, timeout=5)
-                except:
-                    pass
+                capture.start(packet_handler)
 
-                # Get first packet if any were collected
-                if packets_collected:
-                    self.packet = packets_collected[0]
-
-                # Close immediately after use
-                if capture:
-                    capture.close()
-                    # Give it a moment to clean up
-                    time.sleep(0.1)
-
-                if self.packet:
+                if packets:
+                    self.packet, num = packets[0]
+                    self.packet_info = parse_packet(self.packet, num)
                     break
 
-            except:
-                if capture:
-                    try:
-                        capture.close()
-                        time.sleep(0.1)
-                    except:
-                        pass
+            except Exception:
                 continue
-
-    def tearDown(self):
-        """Clean up - nothing to do since we close in setUp"""
-        pass
 
     def test_can_extract_basic_info(self):
         """Test extraction of packet number and length"""
-        if not self.packet:
+        if not self.packet or not self.packet_info:
             self.skipTest("No packet captured for parsing test")
 
         print("\n" + "=" * 70)
         print("PACKET PARSING - BASIC INFORMATION (REAL PACKET):")
         print("=" * 70)
-        print(f"  Packet Number: {self.packet.number}")
-        print(f"  Packet Length: {self.packet.length} bytes")
-        print(f"  Timestamp: {self.packet.sniff_time}")
+        print(f"  Packet Number: {self.packet_info.number}")
+        print(f"  Packet Length: {self.packet_info.length} bytes")
+        print(f"  Timestamp: {self.packet_info.timestamp}")
+        print(f"  Layers: {self.packet_info.layers}")
+        print(f"  Protocol: {self.packet_info.protocol}")
         print("=" * 70)
 
-        self.assertIsNotNone(self.packet.number)
-        self.assertIsNotNone(self.packet.length)
-        self.assertIsNotNone(self.packet.sniff_time)
+        self.assertIsNotNone(self.packet_info.number)
+        self.assertIsNotNone(self.packet_info.length)
+        self.assertIsNotNone(self.packet_info.timestamp)
+        self.assertIsInstance(self.packet_info.layers, list)
 
     def test_can_extract_ip_info(self):
         """Test extraction of IP addresses"""
-        if not self.packet:
+        if not self.packet or not self.packet_info:
             self.skipTest("No packet captured for parsing test")
 
         print("\n" + "=" * 70)
         print("PACKET PARSING - IP LAYER (REAL PACKET):")
         print("=" * 70)
-        print(f"  Has IP Layer: {hasattr(self.packet, 'ip')}")
+        print(f"  Has IP: {self.packet_info.src_ip is not None}")
 
-        if hasattr(self.packet, 'ip'):
-            print(f"  Source IP: {self.packet.ip.src}")
-            print(f"  Destination IP: {self.packet.ip.dst}")
+        if self.packet_info.src_ip:
+            print(f"  Source IP: {self.packet_info.src_ip}")
+            print(f"  Destination IP: {self.packet_info.dst_ip}")
+            print(f"  Is IPv6: {self.packet_info.is_ipv6}")
             print("=" * 70)
 
-            self.assertIsNotNone(self.packet.ip.src)
-            self.assertIsNotNone(self.packet.ip.dst)
+            self.assertIsNotNone(self.packet_info.src_ip)
+            self.assertIsNotNone(self.packet_info.dst_ip)
         else:
             print(f"  Note: This packet doesn't have an IP layer")
-            print(f"  Layers present: {self.packet.layers}")
+            print(f"  Layers present: {self.packet_info.layers}")
             print("=" * 70)
-            # Just verify we can check for layer existence
-            self.assertFalse(hasattr(self.packet, 'ip'))
+            self.assertIsNone(self.packet_info.src_ip)
 
     def test_can_extract_transport_info(self):
         """Test extraction of port numbers"""
-        if not self.packet:
+        if not self.packet or not self.packet_info:
             self.skipTest("No packet captured for parsing test")
 
         print("\n" + "=" * 70)
         print("PACKET PARSING - TRANSPORT LAYER (REAL PACKET):")
         print("=" * 70)
-        print(f"  Has TCP Layer: {hasattr(self.packet, 'tcp')}")
-        print(f"  Has UDP Layer: {hasattr(self.packet, 'udp')}")
+        print(f"  Protocol: {self.packet_info.protocol}")
+        print(f"  Has Ports: {self.packet_info.src_port is not None}")
 
-        if hasattr(self.packet, 'tcp'):
-            print(f"  Protocol: TCP")
-            print(f"  Source Port: {self.packet.tcp.srcport}")
-            print(f"  Destination Port: {self.packet.tcp.dstport}")
+        if self.packet_info.src_port:
+            print(f"  Source Port: {self.packet_info.src_port}")
+            print(f"  Destination Port: {self.packet_info.dst_port}")
+
+            if self.packet_info.tcp_flags:
+                print(f"  TCP Flags: {', '.join(self.packet_info.tcp_flags)}")
             print("=" * 70)
 
-            self.assertIsNotNone(self.packet.tcp.srcport)
-            self.assertIsNotNone(self.packet.tcp.dstport)
-        elif hasattr(self.packet, 'udp'):
-            print(f"  Protocol: UDP")
-            print(f"  Source Port: {self.packet.udp.srcport}")
-            print(f"  Destination Port: {self.packet.udp.dstport}")
-            print("=" * 70)
-
-            self.assertIsNotNone(self.packet.udp.srcport)
-            self.assertIsNotNone(self.packet.udp.dstport)
+            self.assertIsNotNone(self.packet_info.src_port)
+            self.assertIsNotNone(self.packet_info.dst_port)
         else:
             print(f"  Note: This packet doesn't have TCP or UDP layer")
-            print(f"  Layers present: {self.packet.layers}")
+            print(f"  Layers present: {self.packet_info.layers}")
             print("=" * 70)
-            # Just verify we can check for layer existence
-            self.assertFalse(hasattr(self.packet, 'tcp'))
-            self.assertFalse(hasattr(self.packet, 'udp'))
+            self.assertIsNone(self.packet_info.src_port)
+
+    def test_format_packet_text(self):
+        """Test formatting packet as text"""
+        if not self.packet or not self.packet_info:
+            self.skipTest("No packet captured for parsing test")
+
+        text = format_packet_text(self.packet_info)
+
+        print("\n" + "=" * 70)
+        print("PACKET PARSING - TEXT FORMAT:")
+        print("=" * 70)
+        print(text)
+        print("=" * 70)
+
+        self.assertIsInstance(text, str)
+        self.assertGreater(len(text), 0)
+        self.assertIn(f"Packet #{self.packet_info.number}", text)
+
+    def test_format_packet_dict(self):
+        """Test formatting packet as dictionary"""
+        if not self.packet or not self.packet_info:
+            self.skipTest("No packet captured for parsing test")
+
+        data = format_packet_dict(self.packet_info)
+
+        print("\n" + "=" * 70)
+        print("PACKET PARSING - DICT FORMAT:")
+        print("=" * 70)
+        for key, value in data.items():
+            print(f"  {key}: {value}")
+        print("=" * 70)
+
+        self.assertIsInstance(data, dict)
+        self.assertIn('number', data)
+        self.assertIn('timestamp', data)
+        self.assertIn('length', data)
+        self.assertIn('layers', data)
+        self.assertIn('protocol', data)
+
+        self.assertEqual(data['number'], self.packet_info.number)
+        self.assertEqual(data['length'], self.packet_info.length)
+
+    def test_packet_info_dataclass(self):
+        """Test PacketInfo dataclass fields"""
+        if not self.packet_info:
+            self.skipTest("No packet captured for parsing test")
+
+        self.assertIsInstance(self.packet_info, PacketInfo)
+
+        # Check all required fields exist
+        self.assertTrue(hasattr(self.packet_info, 'number'))
+        self.assertTrue(hasattr(self.packet_info, 'timestamp'))
+        self.assertTrue(hasattr(self.packet_info, 'length'))
+        self.assertTrue(hasattr(self.packet_info, 'layers'))
+        self.assertTrue(hasattr(self.packet_info, 'protocol'))
+        self.assertTrue(hasattr(self.packet_info, 'src_ip'))
+        self.assertTrue(hasattr(self.packet_info, 'dst_ip'))
+        self.assertTrue(hasattr(self.packet_info, 'src_port'))
+        self.assertTrue(hasattr(self.packet_info, 'dst_port'))
+        self.assertTrue(hasattr(self.packet_info, 'tcp_flags'))
+        self.assertTrue(hasattr(self.packet_info, 'application'))
+        self.assertTrue(hasattr(self.packet_info, 'application_details'))
 
 
 if __name__ == '__main__':
