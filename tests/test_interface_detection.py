@@ -10,7 +10,7 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from packet_capture import load_interfaces, get_interface_device
+from backend.packet_capture import load_interfaces, get_interface_device
 
 
 class TestInterfaceDetection(unittest.TestCase):

@@ -11,13 +11,13 @@ import os
 # Add parent directory to path for imports
 sys.path.insert(0, os.path.dirname(os.path.dirname(os.path.abspath(__file__))))
 
-from packet_capture import (
+from backend.packet_capture import (
     get_interface_device,
     PacketCapture,
     CaptureConfig,
     CaptureStats,
 )
-from helpers import get_connected_interfaces
+from backend.helpers import get_connected_interfaces
 
 
 class TestPacketCapturing(unittest.TestCase):
