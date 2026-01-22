@@ -4,11 +4,11 @@
  * Contains all the user inputs for configuring and controlling packet capture.
  */
 function Controls({
+  interfaceLevel,
   interfaces,
+  connectedInterfaces,
   selectedInterface,
   onInterfaceChange,
-  showOnlyConnected,
-  onShowOnlyConnectedChange,
   displayFilter,
   onFilterChange,
   isCapturing,
@@ -19,6 +19,9 @@ function Controls({
   onRefresh,
   canClear,
 }) {
+  // Check if an interface is connected
+  const isConnected = (iface) => connectedInterfaces.includes(iface);
+
   return (
     <div className="controls">
       <div className="control-group">
@@ -33,20 +36,11 @@ function Controls({
           ) : (
             interfaces.map((iface) => (
               <option key={iface} value={iface}>
-                {iface}
+                {iface}{isConnected(iface) ? ' (Connected)' : ''}
               </option>
             ))
           )}
         </select>
-        <label>
-          <input
-            type="checkbox"
-            checked={showOnlyConnected}
-            onChange={(e) => onShowOnlyConnectedChange(e.target.checked)}
-            disabled={isCapturing}
-          />
-          {' '}Connected only
-        </label>
       </div>
 
       <div className="control-group">

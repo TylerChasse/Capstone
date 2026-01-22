@@ -34,7 +34,6 @@ function App() {
   const [interfaces, setInterfaces] = useState([]);
   const [connectedInterfaces, setConnectedInterfaces] = useState([]);
   const [selectedInterface, setSelectedInterface] = useState('');
-  const [showOnlyConnected, setShowOnlyConnected] = useState(true);
 
   // Capture state
   const [isCapturing, setIsCapturing] = useState(false);
@@ -225,9 +224,6 @@ function App() {
   // HELPERS
   // -------------------------------------------------------------------------
 
-  // Filter interfaces based on "Connected only" checkbox
-  const displayInterfaces = showOnlyConnected ? connectedInterfaces : interfaces;
-
   /** Check if an interface is in the connected list */
   function isConnected(iface) {
     return connectedInterfaces.includes(iface);
@@ -252,11 +248,10 @@ function App() {
 
       <Controls
         interfaceLevel={interfaceLevel}
-        interfaces={displayInterfaces}
+        interfaces={interfaces}
+        connectedInterfaces={connectedInterfaces}
         selectedInterface={selectedInterface}
         onInterfaceChange={setSelectedInterface}
-        showOnlyConnected={showOnlyConnected}
-        onShowOnlyConnectedChange={setShowOnlyConnected}
         displayFilter={displayFilter}
         onFilterChange={setDisplayFilter}
         isCapturing={isCapturing}
