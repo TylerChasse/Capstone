@@ -1,3 +1,17 @@
+/**
+ * App.jsx - Main Application Component
+ *
+ * This is the root component that manages all application state and logic.
+ * It coordinates between the UI components and the backend API.
+ *
+ * State Management:
+ *   - Interface state: Which network interfaces are available/selected
+ *   - Capture state: Is capture running, what packets have been captured
+ *   - UI state: Loading indicators, error/success messages
+ *
+ * The component polls the backend every 500ms during capture to get new packets.
+ */
+
 import { useState, useEffect, useRef } from 'react';
 import * as api from './api';
 import {
@@ -9,7 +23,11 @@ import {
 } from './components';
 
 function App() {
-  // Interface state
+  // -------------------------------------------------------------------------
+  // STATE
+  // -------------------------------------------------------------------------
+
+  // Interface state - which network interfaces are available
   const [interfaces, setInterfaces] = useState([]);
   const [connectedInterfaces, setConnectedInterfaces] = useState([]);
   const [selectedInterface, setSelectedInterface] = useState('');
@@ -26,15 +44,19 @@ function App() {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
 
-  // Polling interval ref
+  // Ref to store the polling interval ID
   const pollInterval = useRef(null);
 
-  // Load interfaces on mount
+  // -------------------------------------------------------------------------
+  // EFFECTS (side effects that run on state changes)
+  // -------------------------------------------------------------------------
+
+  // Load interfaces when app first mounts
   useEffect(() => {
     loadInterfaces();
   }, []);
 
-  // Poll for packets when capturing
+  // Poll backend for new packets while capture is running
   useEffect(() => {
     if (isCapturing) {
       pollInterval.current = setInterval(async () => {
@@ -63,6 +85,11 @@ function App() {
     };
   }, [isCapturing]);
 
+  // -------------------------------------------------------------------------
+  // EVENT HANDLERS
+  // -------------------------------------------------------------------------
+
+  /** Load all interfaces and connected interfaces from backend */
   async function loadInterfaces() {
     setLoading(true);
     setError(null);
@@ -87,6 +114,7 @@ function App() {
     }
   }
 
+  /** Start capturing packets on the selected interface */
   async function handleStartCapture() {
     if (!selectedInterface) {
       setError('Please select an interface');
@@ -108,6 +136,7 @@ function App() {
     }
   }
 
+  /** Stop the current capture and fetch final packets */
   async function handleStopCapture() {
     try {
       await api.stopCapture();
@@ -120,6 +149,7 @@ function App() {
     }
   }
 
+  /** Clear all captured packets */
   async function handleClearPackets() {
     try {
       await api.clearPackets();
@@ -130,6 +160,7 @@ function App() {
     }
   }
 
+  /** Export packets to a JSON file */
   async function handleExport() {
     if (packets.length === 0) {
       setError('No packets to export');
@@ -158,6 +189,7 @@ function App() {
     }
   }
 
+  /** Import packets from a JSON file */
   async function handleImport() {
     try {
       let filePath;
@@ -186,11 +218,21 @@ function App() {
     }
   }
 
+  // -------------------------------------------------------------------------
+  // HELPERS
+  // -------------------------------------------------------------------------
+
+  // Filter interfaces based on "Connected only" checkbox
   const displayInterfaces = showOnlyConnected ? connectedInterfaces : interfaces;
 
+  /** Check if an interface is in the connected list */
   function isConnected(iface) {
     return connectedInterfaces.includes(iface);
   }
+
+  // -------------------------------------------------------------------------
+  // RENDER
+  // -------------------------------------------------------------------------
 
   return (
     <div className="app">

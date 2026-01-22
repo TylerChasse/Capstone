@@ -1,3 +1,6 @@
+/**
+ * Header - App title bar with export/import buttons
+ */
 function Header({ onExport, onImport, canExport }) {
   return (
     <div className="header">

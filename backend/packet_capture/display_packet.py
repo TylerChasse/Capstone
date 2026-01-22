@@ -1,10 +1,26 @@
 """
-Module for formatting and displaying packet information.
+display_packet.py - Packet Parsing and Formatting
+
+Converts raw pyshark packet objects into structured, readable formats.
+Extracts information from each layer of the network stack:
+    - Layer 2: Ethernet, ARP
+    - Layer 3: IPv4, IPv6
+    - Layer 4: TCP, UDP, ICMP
+    - Layer 7: HTTP, DNS, TLS
+
+Output Formats:
+    - PacketInfo: Structured dataclass for internal use
+    - format_packet_text(): Human-readable string
+    - format_packet_dict(): JSON-serializable dictionary
 """
 
 from typing import Any, Dict, List, Optional
 from dataclasses import dataclass, field
 
+
+# =============================================================================
+# DATA STRUCTURES
+# =============================================================================
 
 @dataclass
 class PacketInfo:
@@ -36,6 +52,10 @@ class PacketInfo:
     application: Optional[str] = None
     application_details: Dict[str, str] = field(default_factory=dict)
 
+
+# =============================================================================
+# MAIN PARSING FUNCTION
+# =============================================================================
 
 def parse_packet(packet: Any, number: int) -> PacketInfo:
     """
@@ -88,6 +108,10 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
 
     return info
 
+
+# =============================================================================
+# LAYER PARSERS (internal helpers)
+# =============================================================================
 
 def _parse_transport_layer(packet: Any, info: PacketInfo) -> None:
     """Parse TCP/UDP/ICMP transport layer information."""
@@ -205,6 +229,10 @@ def _parse_application_layer(packet: Any, info: PacketInfo) -> None:
         if hasattr(packet.tls, 'handshake_extensions_server_name'):
             info.application_details['server_name'] = packet.tls.handshake_extensions_server_name
 
+
+# =============================================================================
+# OUTPUT FORMATTERS
+# =============================================================================
 
 def format_packet_text(info: PacketInfo) -> str:
     """

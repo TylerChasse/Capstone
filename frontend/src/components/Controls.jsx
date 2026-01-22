@@ -1,3 +1,8 @@
+/**
+ * Controls - Interface selector, filter input, and capture buttons
+ *
+ * Contains all the user inputs for configuring and controlling packet capture.
+ */
 function Controls({
   interfaces,
   selectedInterface,

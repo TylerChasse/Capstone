@@ -1,5 +1,8 @@
 """
-Module for loading and parsing network interfaces using tshark.
+load_interfaces.py - Network Interface Discovery
+
+Uses tshark (Wireshark's CLI) to find available network interfaces.
+Handles both Windows and Linux/Mac interface formats.
 """
 
 import subprocess

@@ -1,3 +1,6 @@
+/**
+ * StatusBar - Displays current capture status, packet count, and active filter
+ */
 function StatusBar({
   isCapturing,
   packetCount,

@@ -1,5 +1,10 @@
 """
-Helper utilities for finding connected network interfaces.
+find_connected_interfaces.py - Connected Interface Detection
+
+Filters network interfaces to show only those that are actually connected.
+Uses Windows 'netsh' command to check connection status, then cross-references
+with tshark's interface list to get the device paths needed for capture.
+
 """
 
 import subprocess

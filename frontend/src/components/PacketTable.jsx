@@ -1,3 +1,9 @@
+/**
+ * PacketTable - Scrollable table displaying captured packets
+ *
+ * Shows packet summary info (time, IPs, protocol, ports).
+ * Click a row to select it and view details in PacketDetails.
+ */
 function PacketTable({ packets, selectedPacket, onSelectPacket }) {
   if (packets.length === 0) {
     return (

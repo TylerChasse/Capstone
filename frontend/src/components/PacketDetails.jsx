@@ -1,3 +1,13 @@
+/**
+ * PacketDetails - Detailed view of a selected packet
+ *
+ * Shows all parsed information organized by network layer:
+ *   - General: timestamp, length, protocol, layers
+ *   - Network: IP addresses
+ *   - Transport: ports, TCP flags
+ *   - ARP: MAC/IP mappings
+ *   - Application: HTTP, DNS, TLS details
+ */
 function PacketDetails({ packet }) {
   if (!packet) return null;
 
