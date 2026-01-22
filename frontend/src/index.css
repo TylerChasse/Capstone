@@ -25,6 +25,22 @@ body {
   align-items: center;
 }
 
+.header-controls {
+  display: flex;
+  gap: 16px;
+  align-items: center;
+}
+
+.level-selector {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.level-selector select {
+  min-width: 120px;
+}
+
 h1 {
   font-size: 24px;
   font-weight: 600;

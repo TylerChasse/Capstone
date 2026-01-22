@@ -27,6 +27,9 @@ function App() {
   // STATE
   // -------------------------------------------------------------------------
 
+  // Interface level - controls UI complexity (beginner/intermediate/advanced)
+  const [interfaceLevel, setInterfaceLevel] = useState('beginner');
+
   // Interface state - which network interfaces are available
   const [interfaces, setInterfaces] = useState([]);
   const [connectedInterfaces, setConnectedInterfaces] = useState([]);
@@ -240,12 +243,15 @@ function App() {
         onExport={handleExport}
         onImport={handleImport}
         canExport={packets.length > 0}
+        interfaceLevel={interfaceLevel}
+        onLevelChange={setInterfaceLevel}
       />
 
       {error && <div className="error-message">{error}</div>}
       {success && <div className="success-message">{success}</div>}
 
       <Controls
+        interfaceLevel={interfaceLevel}
         interfaces={displayInterfaces}
         selectedInterface={selectedInterface}
         onInterfaceChange={setSelectedInterface}
@@ -263,6 +269,7 @@ function App() {
       />
 
       <StatusBar
+        interfaceLevel={interfaceLevel}
         isCapturing={isCapturing}
         packetCount={packets.length}
         selectedInterface={selectedInterface}
@@ -271,12 +278,13 @@ function App() {
       />
 
       <PacketTable
+        interfaceLevel={interfaceLevel}
         packets={packets}
         selectedPacket={selectedPacket}
         onSelectPacket={setSelectedPacket}
       />
 
-      <PacketDetails packet={selectedPacket} />
+      <PacketDetails interfaceLevel={interfaceLevel} packet={selectedPacket} />
     </div>
   );
 }
