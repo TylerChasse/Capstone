@@ -13,7 +13,7 @@ An educational network packet analyzer with a Python backend and Electron/React 
 ### 1. Clone the Repository
 
 ```bash
-git clone <repository-url>
+git clone https://github.com/TylerChasse/Capstone.git
 cd Capstone
 ```
 
