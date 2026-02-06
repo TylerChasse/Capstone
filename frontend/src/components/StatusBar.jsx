@@ -1,12 +1,22 @@
+import NavigationControls from './NavigationControls';
+
 /**
- * StatusBar - Displays current capture status, packet count, and active filter
+ * StatusBar - Displays capture status, packet count, filter, and navigation controls
  */
 function StatusBar({
+  interfaceLevel,
   isCapturing,
   packetCount,
   selectedInterface,
   isConnected,
   displayFilter,
+  selectedPacketIndex,
+  onFirstPacket,
+  onPrevPacket,
+  onNextPacket,
+  onLastPacket,
+  autoScroll,
+  onToggleAutoScroll,
 }) {
   return (
     <div className="status-bar">
@@ -37,6 +47,17 @@ function StatusBar({
           <span className="value">{displayFilter}</span>
         </div>
       )}
+
+      <NavigationControls
+        packetCount={packetCount}
+        selectedPacketIndex={selectedPacketIndex}
+        onFirstPacket={onFirstPacket}
+        onPrevPacket={onPrevPacket}
+        onNextPacket={onNextPacket}
+        onLastPacket={onLastPacket}
+        autoScroll={autoScroll}
+        onToggleAutoScroll={onToggleAutoScroll}
+      />
     </div>
   );
 }

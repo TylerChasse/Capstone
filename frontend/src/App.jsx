@@ -45,6 +45,7 @@ function App() {
   const [error, setError] = useState(null);
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
+  const [autoScroll, setAutoScroll] = useState(true);
 
   // Ref to store the polling interval ID
   const pollInterval = useRef(null);
@@ -221,6 +222,52 @@ function App() {
   }
 
   // -------------------------------------------------------------------------
+  // PACKET NAVIGATION
+  // -------------------------------------------------------------------------
+
+  // Calculate the index of the selected packet
+  const selectedPacketIndex = selectedPacket
+    ? packets.findIndex((p) => p.number === selectedPacket.number)
+    : -1;
+
+  /** Navigate to first packet */
+  function handleFirstPacket() {
+    if (packets.length > 0) {
+      setSelectedPacket(packets[0]);
+      setAutoScroll(false);
+    }
+  }
+
+  /** Navigate to previous packet */
+  function handlePrevPacket() {
+    if (selectedPacketIndex > 0) {
+      setSelectedPacket(packets[selectedPacketIndex - 1]);
+      setAutoScroll(false);
+    }
+  }
+
+  /** Navigate to next packet */
+  function handleNextPacket() {
+    if (selectedPacketIndex < packets.length - 1) {
+      setSelectedPacket(packets[selectedPacketIndex + 1]);
+      setAutoScroll(false);
+    }
+  }
+
+  /** Navigate to last packet */
+  function handleLastPacket() {
+    if (packets.length > 0) {
+      setSelectedPacket(packets[packets.length - 1]);
+      setAutoScroll(true);
+    }
+  }
+
+  /** Toggle auto-scroll */
+  function handleToggleAutoScroll() {
+    setAutoScroll(!autoScroll);
+  }
+
+  // -------------------------------------------------------------------------
   // HELPERS
   // -------------------------------------------------------------------------
 
@@ -270,6 +317,13 @@ function App() {
         selectedInterface={selectedInterface}
         isConnected={isConnected(selectedInterface)}
         displayFilter={displayFilter}
+        selectedPacketIndex={selectedPacketIndex}
+        onFirstPacket={handleFirstPacket}
+        onPrevPacket={handlePrevPacket}
+        onNextPacket={handleNextPacket}
+        onLastPacket={handleLastPacket}
+        autoScroll={autoScroll}
+        onToggleAutoScroll={handleToggleAutoScroll}
       />
 
       <PacketTable
@@ -277,6 +331,8 @@ function App() {
         packets={packets}
         selectedPacket={selectedPacket}
         onSelectPacket={setSelectedPacket}
+        autoScroll={autoScroll}
+        onAutoScrollChange={setAutoScroll}
       />
 
       <PacketDetails interfaceLevel={interfaceLevel} packet={selectedPacket} />

@@ -27,24 +27,33 @@ function getProtocolClass(protocol) {
   return 'proto-other';
 }
 
-function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket }) {
+function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, autoScroll, onAutoScrollChange }) {
   const containerRef = useRef(null);
-  const shouldAutoScroll = useRef(true);
+  const selectedRowRef = useRef(null);
 
-  // Check if user is near the bottom (within 50px)
+  // Check if user is near the bottom (within 50px) and update autoScroll state
   const handleScroll = () => {
     if (!containerRef.current) return;
     const { scrollTop, scrollHeight, clientHeight } = containerRef.current;
     const atBottom = scrollHeight - scrollTop - clientHeight < 50;
-    shouldAutoScroll.current = atBottom;
+    if (onAutoScrollChange && atBottom !== autoScroll) {
+      onAutoScrollChange(atBottom);
+    }
   };
 
-  // Auto-scroll to bottom when new packets arrive (only if user hasn't scrolled up)
+  // Auto-scroll to bottom when new packets arrive (only if autoScroll is enabled)
   useEffect(() => {
-    if (containerRef.current && shouldAutoScroll.current) {
+    if (containerRef.current && autoScroll) {
       containerRef.current.scrollTop = containerRef.current.scrollHeight;
     }
-  }, [packets.length]);
+  }, [packets.length, autoScroll]);
+
+  // Scroll selected packet into view when selection changes via navigation
+  useEffect(() => {
+    if (selectedRowRef.current) {
+      selectedRowRef.current.scrollIntoView({ block: 'nearest', behavior: 'smooth' });
+    }
+  }, [selectedPacket]);
 
   if (packets.length === 0) {
     return (
@@ -72,10 +81,13 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket }
           </tr>
         </thead>
         <tbody>
-          {packets.map((packet) => (
+          {packets.map((packet) => {
+            const isSelected = selectedPacket?.number === packet.number;
+            return (
             <tr
               key={packet.number}
-              className={`packet-row ${getProtocolClass(packet.protocol)} ${selectedPacket?.number === packet.number ? 'selected' : ''}`}
+              ref={isSelected ? selectedRowRef : null}
+              className={`packet-row ${getProtocolClass(packet.protocol)} ${isSelected ? 'selected' : ''}`}
               onClick={() => onSelectPacket(packet)}
             >
               <td>{packet.number}</td>
@@ -90,7 +102,8 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket }
                   : packet.layers}
               </td>
             </tr>
-          ))}
+            );
+          })}
         </tbody>
       </table>
     </div>
