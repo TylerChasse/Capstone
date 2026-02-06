@@ -176,12 +176,71 @@ th {
   color: #888;
 }
 
-tr:hover {
-  background: #1e3a5f;
+.packet-row:hover {
+  filter: brightness(1.3);
+  cursor: pointer;
 }
 
+/* Protocol color coding */
+.packet-row.proto-tcp {
+  background: rgba(76, 175, 80, 0.15);
+  border-left: 3px solid #4caf50;
+}
+
+.packet-row.proto-udp {
+  background: rgba(33, 150, 243, 0.15);
+  border-left: 3px solid #2196f3;
+}
+
+.packet-row.proto-http {
+  background: rgba(255, 193, 7, 0.15);
+  border-left: 3px solid #ffc107;
+}
+
+.packet-row.proto-dns {
+  background: rgba(156, 39, 176, 0.15);
+  border-left: 3px solid #9c27b0;
+}
+
+.packet-row.proto-icmp {
+  background: rgba(255, 87, 34, 0.15);
+  border-left: 3px solid #ff5722;
+}
+
+.packet-row.proto-arp {
+  background: rgba(0, 188, 212, 0.15);
+  border-left: 3px solid #00bcd4;
+}
+
+.packet-row.proto-tls {
+  background: rgba(233, 30, 99, 0.15);
+  border-left: 3px solid #e91e63;
+}
+
+.packet-row.proto-stp {
+  background: rgba(121, 85, 72, 0.15);
+  border-left: 3px solid #795548;
+}
+
+.packet-row.proto-vrrp {
+  background: rgba(63, 81, 181, 0.15);
+  border-left: 3px solid #3f51b5;
+}
+
+.packet-row.proto-pim {
+  background: rgba(0, 150, 136, 0.15);
+  border-left: 3px solid #009688;
+}
+
+.packet-row.proto-other {
+  background: rgba(158, 158, 158, 0.1);
+  border-left: 3px solid #9e9e9e;
+}
+
+/* Keep selected state visible over protocol colors */
 .packet-row.selected {
-  background: #2563eb;
+  background: #2563eb !important;
+  border-left-color: #60a5fa !important;
 }
 
 .packet-details {
