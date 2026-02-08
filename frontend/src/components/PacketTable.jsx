@@ -74,13 +74,13 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, 
       <table>
         <thead>
           <tr>
-            <th>#</th>
-            <th>Time</th>
-            <th>Source</th>
-            <th>Destination</th>
-            <th>Protocol</th>
-            <th>Length</th>
-            {level.showInfoColumn && <th>Info</th>}
+            <th title="Packet sequence number">#</th>
+            <th title="Time the packet was captured">Time</th>
+            <th title="Source IP or MAC address">Source</th>
+            <th title="Destination IP or MAC address">Destination</th>
+            <th title="Highest-layer protocol detected">Protocol</th>
+            <th title="Total packet size in bytes">Length</th>
+            {level.showInfoColumn && <th title="Port info or protocol layer summary">Info</th>}
           </tr>
         </thead>
         <tbody>
