@@ -48,6 +48,13 @@ class PacketInfo:
     arp_target_mac: Optional[str] = None
     arp_type: Optional[str] = None
 
+    # Ethernet (Data Link) layer info
+    src_mac: Optional[str] = None
+    dst_mac: Optional[str] = None
+
+    # Raw hex data
+    raw_hex: Optional[str] = None
+
     # Application layer info
     application: Optional[str] = None
     application_details: Dict[str, str] = field(default_factory=dict)
@@ -75,6 +82,18 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
         layers=[str(layer.layer_name) for layer in packet.layers],
         protocol=packet.highest_layer
     )
+
+    # Parse Ethernet (Data Link) layer
+    if hasattr(packet, 'eth'):
+        info.src_mac = packet.eth.src
+        info.dst_mac = packet.eth.dst
+
+    # Extract raw hex data
+    try:
+        raw_bytes = bytes(packet.get_raw_packet())
+        info.raw_hex = raw_bytes.hex()
+    except Exception:
+        pass
 
     # Parse ARP packets
     if hasattr(packet, 'arp'):
@@ -304,6 +323,10 @@ def format_packet_dict(info: PacketInfo) -> Dict:
         'length': info.length,
         'layers': info.layers,
         'protocol': info.protocol,
+        'ethernet': {
+            'src_mac': info.src_mac,
+            'dst_mac': info.dst_mac,
+        } if info.src_mac else None,
         'network': {
             'src_ip': info.src_ip,
             'dst_ip': info.dst_ip,
@@ -325,4 +348,5 @@ def format_packet_dict(info: PacketInfo) -> Dict:
             'name': info.application,
             'details': info.application_details,
         } if info.application else None,
+        'raw_hex': info.raw_hex,
     }

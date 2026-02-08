@@ -1,15 +1,21 @@
+import { getLevel } from '../config/levels';
+
 /**
  * PacketDetails - Detailed view of a selected packet
  *
  * Shows all parsed information organized by network layer:
  *   - General: timestamp, length, protocol, layers
+ *   - Data Link: Ethernet MACs (intermediate+)
  *   - Network: IP addresses
  *   - Transport: ports, TCP flags
  *   - ARP: MAC/IP mappings
  *   - Application: HTTP, DNS, TLS details
+ *   - Raw Hex: hex dump of packet (advanced)
  */
-function PacketDetails({ packet }) {
+function PacketDetails({ interfaceLevel, packet }) {
   if (!packet) return null;
+
+  const level = getLevel(interfaceLevel);
 
   return (
     <div className="packet-details">
@@ -34,6 +40,20 @@ function PacketDetails({ packet }) {
           <span>{packet.layers}</span>
         </div>
       </div>
+
+      {level.showMacAddresses && packet.ethernet && (
+        <div className="detail-section">
+          <h4>Data Link Layer</h4>
+          <div className="detail-row">
+            <span className="label">Source MAC:</span>
+            <span>{packet.ethernet.src_mac}</span>
+          </div>
+          <div className="detail-row">
+            <span className="label">Destination MAC:</span>
+            <span>{packet.ethernet.dst_mac}</span>
+          </div>
+        </div>
+      )}
 
       {packet.network && (
         <div className="detail-section">
@@ -122,6 +142,19 @@ function PacketDetails({ packet }) {
               <span>{packet.application.dns_query}</span>
             </div>
           )}
+        </div>
+      )}
+
+      {level.showRawHex && packet.raw_hex && (
+        <div className="detail-section">
+          <h4>Raw Hex</h4>
+          <pre className="raw-hex">{
+            packet.raw_hex.match(/.{1,32}/g)?.map((line, i) => {
+              const offset = (i * 16).toString(16).padStart(4, '0');
+              const hexPairs = line.match(/.{1,2}/g)?.join(' ') || '';
+              return `${offset}  ${hexPairs}`;
+            }).join('\n')
+          }</pre>
         </div>
       )}
     </div>

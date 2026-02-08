@@ -304,6 +304,19 @@ th {
   min-width: 120px;
 }
 
+.raw-hex {
+  font-family: 'Courier New', Courier, monospace;
+  font-size: 12px;
+  background: #0f0f23;
+  color: #8be9fd;
+  padding: 12px;
+  border-radius: 4px;
+  overflow: auto;
+  max-height: 150px;
+  white-space: pre;
+  line-height: 1.4;
+}
+
 .connected-badge {
   display: inline-block;
   padding: 2px 6px;

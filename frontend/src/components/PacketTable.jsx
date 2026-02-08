@@ -1,4 +1,5 @@
 import { useRef, useEffect } from 'react';
+import { getLevel } from '../config/levels';
 
 /**
  * PacketTable - Scrollable table displaying captured packets
@@ -66,6 +67,8 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, 
     );
   }
 
+  const level = getLevel(interfaceLevel);
+
   return (
     <div className="packet-table-container" ref={containerRef} onScroll={handleScroll}>
       <table>
@@ -77,7 +80,7 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, 
             <th>Destination</th>
             <th>Protocol</th>
             <th>Length</th>
-            <th>Info</th>
+            {level.showInfoColumn && <th>Info</th>}
           </tr>
         </thead>
         <tbody>
@@ -96,11 +99,13 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, 
               <td>{packet.network?.dst_ip || packet.arp?.target_ip || '-'}</td>
               <td>{packet.protocol}</td>
               <td>{packet.length}</td>
-              <td>
-                {packet.transport
-                  ? `${packet.transport.src_port} → ${packet.transport.dst_port}`
-                  : packet.layers}
-              </td>
+              {level.showInfoColumn && (
+                <td>
+                  {packet.transport
+                    ? `${packet.transport.src_port} → ${packet.transport.dst_port}`
+                    : packet.layers}
+                </td>
+              )}
             </tr>
             );
           })}
