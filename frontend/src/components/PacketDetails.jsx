@@ -39,6 +39,12 @@ function PacketDetails({ interfaceLevel, packet }) {
           <span className="label">Layers:</span>
           <span>{packet.layers}</span>
         </div>
+        {level.showInterfaceId && packet.interface_id && (
+          <div className="detail-row">
+            <span className="label">Interface ID:</span>
+            <span>{packet.interface_id}</span>
+          </div>
+        )}
       </div>
 
       {level.showMacAddresses && packet.ethernet && (

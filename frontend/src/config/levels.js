@@ -9,6 +9,7 @@
 const beginner = {
   showInfoColumn: false,
   showMacAddresses: false,
+  showInterfaceId: false,
   showRawHex: false,
 };
 
@@ -16,6 +17,7 @@ const intermediate = {
   ...beginner,
   showInfoColumn: true,
   showMacAddresses: true,
+  showInterfaceId: true,
 };
 
 const advanced = {

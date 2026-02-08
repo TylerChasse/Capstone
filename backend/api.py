@@ -178,12 +178,14 @@ def start_capture(request: CaptureRequest):
         capture_state["capture"] = PacketCapture(config)
         capture_state["packets"] = []
         capture_state["is_capturing"] = True
+        capture_state["interface_id"] = interface_path
 
         def packet_handler(packet, number):
             """Called for each packet captured. Parses and stores the packet."""
             try:
                 packet_info = parse_packet(packet, number)
                 packet_dict = format_packet_dict(packet_info)
+                packet_dict['interface_id'] = capture_state["interface_id"]
                 capture_state["packets"].append(packet_dict)
             except Exception:
                 pass  # Skip packets that fail to parse
