@@ -52,6 +52,13 @@ class PacketInfo:
     # Ethernet (Data Link) layer info
     src_mac: Optional[str] = None
     dst_mac: Optional[str] = None
+    eth_header_len: Optional[int] = None
+
+    # Layer lengths
+    network_header_len: Optional[int] = None
+    network_total_len: Optional[int] = None
+    transport_header_len: Optional[int] = None
+    transport_payload_len: Optional[int] = None
 
     # Raw hex data
     raw_hex: Optional[str] = None
@@ -88,6 +95,7 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
     if hasattr(packet, 'eth'):
         info.src_mac = packet.eth.src
         info.dst_mac = packet.eth.dst
+        info.eth_header_len = 14  # Standard Ethernet header is always 14 bytes
 
     # Extract raw hex data
     try:
@@ -117,6 +125,10 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
         info.dst_ip = packet.ip.dst
         if hasattr(packet.ip, 'ttl'):
             info.ttl = int(packet.ip.ttl)
+        if hasattr(packet.ip, 'hdr_len'):
+            info.network_header_len = int(packet.ip.hdr_len)
+        if hasattr(packet.ip, 'len'):
+            info.network_total_len = int(packet.ip.len)
         _parse_transport_layer(packet, info)
         _parse_application_layer(packet, info)
 
@@ -127,6 +139,9 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
         info.is_ipv6 = True
         if hasattr(packet.ipv6, 'hlim'):
             info.ttl = int(packet.ipv6.hlim)
+        info.network_header_len = 40  # IPv6 fixed header
+        if hasattr(packet.ipv6, 'plen'):
+            info.network_total_len = int(packet.ipv6.plen) + 40
         _parse_transport_layer(packet, info)
         _parse_application_layer(packet, info)
 
@@ -143,6 +158,10 @@ def _parse_transport_layer(packet: Any, info: PacketInfo) -> None:
         info.protocol = "TCP"
         info.src_port = int(packet.tcp.srcport)
         info.dst_port = int(packet.tcp.dstport)
+        if hasattr(packet.tcp, 'hdr_len'):
+            info.transport_header_len = int(packet.tcp.hdr_len)
+        if hasattr(packet.tcp, 'len'):
+            info.transport_payload_len = int(packet.tcp.len)
 
         # Parse TCP flags
         flag_checks = [
@@ -161,6 +180,9 @@ def _parse_transport_layer(packet: Any, info: PacketInfo) -> None:
         info.protocol = "UDP"
         info.src_port = int(packet.udp.srcport)
         info.dst_port = int(packet.udp.dstport)
+        info.transport_header_len = 8  # UDP header is always 8 bytes
+        if hasattr(packet.udp, 'length'):
+            info.transport_payload_len = int(packet.udp.length) - 8
 
     elif hasattr(packet, 'icmp'):
         info.protocol = "ICMP"
@@ -331,17 +353,22 @@ def format_packet_dict(info: PacketInfo) -> Dict:
         'ethernet': {
             'src_mac': info.src_mac,
             'dst_mac': info.dst_mac,
+            'header_len': info.eth_header_len,
         } if info.src_mac else None,
         'network': {
             'src_ip': info.src_ip,
             'dst_ip': info.dst_ip,
             'is_ipv6': info.is_ipv6,
             'ttl': info.ttl,
+            'header_len': info.network_header_len,
+            'total_len': info.network_total_len,
         } if info.src_ip else None,
         'transport': {
             'src_port': info.src_port,
             'dst_port': info.dst_port,
             'tcp_flags': info.tcp_flags,
+            'header_len': info.transport_header_len,
+            'payload_len': info.transport_payload_len,
         } if info.src_port else None,
         'arp': {
             'sender_ip': info.arp_sender_ip,

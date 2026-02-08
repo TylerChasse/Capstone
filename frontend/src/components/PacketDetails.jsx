@@ -58,6 +58,12 @@ function PacketDetails({ interfaceLevel, packet }) {
             <span className="label">Destination MAC:</span>
             <span>{packet.ethernet.dst_mac}</span>
           </div>
+          {level.showLayerLengths && packet.ethernet.header_len && (
+            <div className="detail-row">
+              <span className="label">Header Length:</span>
+              <span>{packet.ethernet.header_len} bytes</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -78,6 +84,18 @@ function PacketDetails({ interfaceLevel, packet }) {
               <span>{packet.network.ttl}</span>
             </div>
           )}
+          {level.showLayerLengths && packet.network.header_len && (
+            <div className="detail-row">
+              <span className="label">Header Length:</span>
+              <span>{packet.network.header_len} bytes</span>
+            </div>
+          )}
+          {level.showLayerLengths && packet.network.total_len && (
+            <div className="detail-row">
+              <span className="label">Total Length:</span>
+              <span>{packet.network.total_len} bytes</span>
+            </div>
+          )}
         </div>
       )}
 
@@ -96,6 +114,18 @@ function PacketDetails({ interfaceLevel, packet }) {
             <div className="detail-row">
               <span className="label">Flags:</span>
               <span>{packet.transport.flags}</span>
+            </div>
+          )}
+          {level.showLayerLengths && packet.transport.header_len && (
+            <div className="detail-row">
+              <span className="label">Header Length:</span>
+              <span>{packet.transport.header_len} bytes</span>
+            </div>
+          )}
+          {level.showLayerLengths && packet.transport.payload_len != null && (
+            <div className="detail-row">
+              <span className="label">Payload Length:</span>
+              <span>{packet.transport.payload_len} bytes</span>
             </div>
           )}
         </div>

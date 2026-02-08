@@ -25,6 +25,7 @@ const intermediate = {
 const advanced = {
   ...intermediate,
   showRawHex: true,
+  showLayerLengths: true,
 };
 
 export const levels = { beginner, intermediate, advanced };
