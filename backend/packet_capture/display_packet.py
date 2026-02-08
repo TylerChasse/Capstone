@@ -35,6 +35,7 @@ class PacketInfo:
     src_ip: Optional[str] = None
     dst_ip: Optional[str] = None
     is_ipv6: bool = False
+    ttl: Optional[int] = None
 
     # Transport layer info
     src_port: Optional[int] = None
@@ -114,6 +115,8 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
     elif hasattr(packet, 'ip'):
         info.src_ip = packet.ip.src
         info.dst_ip = packet.ip.dst
+        if hasattr(packet.ip, 'ttl'):
+            info.ttl = int(packet.ip.ttl)
         _parse_transport_layer(packet, info)
         _parse_application_layer(packet, info)
 
@@ -122,6 +125,8 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
         info.src_ip = packet.ipv6.src
         info.dst_ip = packet.ipv6.dst
         info.is_ipv6 = True
+        if hasattr(packet.ipv6, 'hlim'):
+            info.ttl = int(packet.ipv6.hlim)
         _parse_transport_layer(packet, info)
         _parse_application_layer(packet, info)
 
@@ -331,6 +336,7 @@ def format_packet_dict(info: PacketInfo) -> Dict:
             'src_ip': info.src_ip,
             'dst_ip': info.dst_ip,
             'is_ipv6': info.is_ipv6,
+            'ttl': info.ttl,
         } if info.src_ip else None,
         'transport': {
             'src_port': info.src_port,

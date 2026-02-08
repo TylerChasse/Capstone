@@ -72,7 +72,7 @@ function PacketDetails({ interfaceLevel, packet }) {
             <span className="label">Destination IP:</span>
             <span>{packet.network.dst_ip}</span>
           </div>
-          {packet.network.ttl && (
+          {level.showTtl && packet.network.ttl && (
             <div className="detail-row">
               <span className="label">TTL:</span>
               <span>{packet.network.ttl}</span>
