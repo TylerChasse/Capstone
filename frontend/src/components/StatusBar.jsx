@@ -1,15 +1,15 @@
 import NavigationControls from './NavigationControls';
 
 /**
- * StatusBar - Displays capture status, packet count, filter, and navigation controls
+ * StatusBar - Displays capture status, packet count, and navigation controls
  */
 function StatusBar({
   interfaceLevel,
   isCapturing,
   packetCount,
+  filteredCount,
   selectedInterface,
   isConnected,
-  displayFilter,
   selectedPacketIndex,
   onFirstPacket,
   onPrevPacket,
@@ -28,7 +28,11 @@ function StatusBar({
       </div>
       <div className="status-item">
         <span className="label">Packets:</span>
-        <span className="value">{packetCount}</span>
+        <span className="value">
+          {filteredCount !== packetCount
+            ? `${filteredCount} / ${packetCount}`
+            : packetCount}
+        </span>
       </div>
       <div className="status-item">
         <span className="label">Interface:</span>
@@ -41,15 +45,9 @@ function StatusBar({
           )}
         </span>
       </div>
-      {displayFilter && (
-        <div className="status-item">
-          <span className="label">Filter:</span>
-          <span className="value">{displayFilter}</span>
-        </div>
-      )}
 
       <NavigationControls
-        packetCount={packetCount}
+        packetCount={filteredCount}
         selectedPacketIndex={selectedPacketIndex}
         onFirstPacket={onFirstPacket}
         onPrevPacket={onPrevPacket}

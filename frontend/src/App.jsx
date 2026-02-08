@@ -7,12 +7,13 @@
  * State Management:
  *   - Interface state: Which network interfaces are available/selected
  *   - Capture state: Is capture running, what packets have been captured
+ *   - Filter state: Protocol and IP filters (client-side)
  *   - UI state: Loading indicators, error/success messages
  *
  * The component polls the backend every 500ms during capture to get new packets.
  */
 
-import { useState, useEffect, useRef } from 'react';
+import { useState, useEffect, useRef, useMemo } from 'react';
 import * as api from './api';
 import {
   Header,
@@ -21,6 +22,26 @@ import {
   PacketTable,
   PacketDetails,
 } from './components';
+
+const ALL_PROTOCOLS = [
+  'TCP', 'UDP', 'HTTP', 'DNS', 'ICMP', 'ARP', 'TLS/SSL', 'STP', 'VRRP', 'PIM', 'Other'
+];
+
+/** Map a packet's protocol string to a filter category */
+function getProtocolCategory(protocol) {
+  const proto = (protocol || '').toUpperCase();
+  if (proto.includes('TCP')) return 'TCP';
+  if (proto.includes('UDP')) return 'UDP';
+  if (proto.includes('HTTP')) return 'HTTP';
+  if (proto.includes('DNS')) return 'DNS';
+  if (proto.includes('ICMP')) return 'ICMP';
+  if (proto.includes('ARP')) return 'ARP';
+  if (proto.includes('TLS') || proto.includes('SSL')) return 'TLS/SSL';
+  if (proto.includes('STP')) return 'STP';
+  if (proto.includes('VRRP')) return 'VRRP';
+  if (proto.includes('PIM')) return 'PIM';
+  return 'Other';
+}
 
 function App() {
   // -------------------------------------------------------------------------
@@ -37,9 +58,12 @@ function App() {
 
   // Capture state
   const [isCapturing, setIsCapturing] = useState(false);
-  const [displayFilter, setDisplayFilter] = useState('');
   const [packets, setPackets] = useState([]);
   const [selectedPacket, setSelectedPacket] = useState(null);
+
+  // Filter state
+  const [protocolFilters, setProtocolFilters] = useState(new Set(ALL_PROTOCOLS));
+  const [ipFilters, setIpFilters] = useState([]);
 
   // UI state
   const [error, setError] = useState(null);
@@ -49,6 +73,32 @@ function App() {
 
   // Ref to store the polling interval ID
   const pollInterval = useRef(null);
+
+  // -------------------------------------------------------------------------
+  // FILTERED PACKETS
+  // -------------------------------------------------------------------------
+
+  const filteredPackets = useMemo(() => {
+    return packets.filter((packet) => {
+      // Protocol filter
+      const category = getProtocolCategory(packet.protocol);
+      if (!protocolFilters.has(category)) return false;
+
+      // IP filter (AND with protocol; empty list = show all)
+      if (ipFilters.length > 0) {
+        const packetIps = [
+          packet.network?.src_ip,
+          packet.network?.dst_ip,
+          packet.arp?.sender_ip,
+          packet.arp?.target_ip,
+        ].filter(Boolean);
+
+        if (!packetIps.some((ip) => ipFilters.includes(ip))) return false;
+      }
+
+      return true;
+    });
+  }, [packets, protocolFilters, ipFilters]);
 
   // -------------------------------------------------------------------------
   // EFFECTS (side effects that run on state changes)
@@ -129,7 +179,7 @@ function App() {
       await api.startCapture({
         interface: selectedInterface,
         packet_count: 0,
-        display_filter: displayFilter,
+        display_filter: '',
         timeout: 300,
       });
       setIsCapturing(true);
@@ -222,47 +272,41 @@ function App() {
   }
 
   // -------------------------------------------------------------------------
-  // PACKET NAVIGATION
+  // PACKET NAVIGATION (operates on filtered packets)
   // -------------------------------------------------------------------------
 
-  // Calculate the index of the selected packet
   const selectedPacketIndex = selectedPacket
-    ? packets.findIndex((p) => p.number === selectedPacket.number)
+    ? filteredPackets.findIndex((p) => p.number === selectedPacket.number)
     : -1;
 
-  /** Navigate to first packet */
   function handleFirstPacket() {
-    if (packets.length > 0) {
-      setSelectedPacket(packets[0]);
+    if (filteredPackets.length > 0) {
+      setSelectedPacket(filteredPackets[0]);
       setAutoScroll(false);
     }
   }
 
-  /** Navigate to previous packet */
   function handlePrevPacket() {
     if (selectedPacketIndex > 0) {
-      setSelectedPacket(packets[selectedPacketIndex - 1]);
+      setSelectedPacket(filteredPackets[selectedPacketIndex - 1]);
       setAutoScroll(false);
     }
   }
 
-  /** Navigate to next packet */
   function handleNextPacket() {
-    if (selectedPacketIndex < packets.length - 1) {
-      setSelectedPacket(packets[selectedPacketIndex + 1]);
+    if (selectedPacketIndex < filteredPackets.length - 1) {
+      setSelectedPacket(filteredPackets[selectedPacketIndex + 1]);
       setAutoScroll(false);
     }
   }
 
-  /** Navigate to last packet */
   function handleLastPacket() {
-    if (packets.length > 0) {
-      setSelectedPacket(packets[packets.length - 1]);
+    if (filteredPackets.length > 0) {
+      setSelectedPacket(filteredPackets[filteredPackets.length - 1]);
       setAutoScroll(true);
     }
   }
 
-  /** Toggle auto-scroll */
   function handleToggleAutoScroll() {
     setAutoScroll(!autoScroll);
   }
@@ -271,7 +315,6 @@ function App() {
   // HELPERS
   // -------------------------------------------------------------------------
 
-  /** Check if an interface is in the connected list */
   function isConnected(iface) {
     return connectedInterfaces.includes(iface);
   }
@@ -283,6 +326,13 @@ function App() {
   return (
     <div className="app">
       <Header
+        interfaces={interfaces}
+        connectedInterfaces={connectedInterfaces}
+        selectedInterface={selectedInterface}
+        onInterfaceChange={setSelectedInterface}
+        isCapturing={isCapturing}
+        loading={loading}
+        onRefresh={loadInterfaces}
         onExport={handleExport}
         onImport={handleImport}
         canExport={packets.length > 0}
@@ -294,19 +344,16 @@ function App() {
       {success && <div className="success-message">{success}</div>}
 
       <Controls
-        interfaceLevel={interfaceLevel}
-        interfaces={interfaces}
-        connectedInterfaces={connectedInterfaces}
-        selectedInterface={selectedInterface}
-        onInterfaceChange={setSelectedInterface}
-        displayFilter={displayFilter}
-        onFilterChange={setDisplayFilter}
+        protocolFilters={protocolFilters}
+        onProtocolFiltersChange={setProtocolFilters}
+        ipFilters={ipFilters}
+        onIpFiltersChange={setIpFilters}
         isCapturing={isCapturing}
         loading={loading}
+        selectedInterface={selectedInterface}
         onStartCapture={handleStartCapture}
         onStopCapture={handleStopCapture}
         onClear={handleClearPackets}
-        onRefresh={loadInterfaces}
         canClear={packets.length > 0}
       />
 
@@ -314,9 +361,9 @@ function App() {
         interfaceLevel={interfaceLevel}
         isCapturing={isCapturing}
         packetCount={packets.length}
+        filteredCount={filteredPackets.length}
         selectedInterface={selectedInterface}
         isConnected={isConnected(selectedInterface)}
-        displayFilter={displayFilter}
         selectedPacketIndex={selectedPacketIndex}
         onFirstPacket={handleFirstPacket}
         onPrevPacket={handlePrevPacket}
@@ -328,7 +375,7 @@ function App() {
 
       <PacketTable
         interfaceLevel={interfaceLevel}
-        packets={packets}
+        packets={filteredPackets}
         selectedPacket={selectedPacket}
         onSelectPacket={setSelectedPacket}
         autoScroll={autoScroll}

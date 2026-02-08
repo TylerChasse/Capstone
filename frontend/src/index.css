@@ -62,6 +62,124 @@ h1 {
   align-items: center;
 }
 
+/* Filter dropdowns */
+.filter-group {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  position: relative;
+}
+
+.filter-dropdown-wrapper {
+  position: relative;
+}
+
+.filter-dropdown-btn {
+  padding: 8px 10px;
+  text-align: left;
+  font-size: 12px;
+  white-space: nowrap;
+}
+
+.filter-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  min-width: 180px;
+  background: #0f0f23;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 8px;
+  z-index: 100;
+  max-height: 300px;
+  overflow: auto;
+}
+
+.filter-dropdown-actions {
+  display: flex;
+  gap: 4px;
+  margin-bottom: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #333;
+}
+
+.filter-dropdown-actions button {
+  flex: 1;
+  padding: 4px 8px;
+  font-size: 12px;
+}
+
+.filter-checkbox {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 4px 0;
+  cursor: pointer;
+  font-size: 13px;
+  color: #eee;
+}
+
+.filter-checkbox input[type="checkbox"] {
+  min-width: auto;
+  width: 14px;
+  height: 14px;
+  cursor: pointer;
+}
+
+/* IP filter */
+.ip-filter-input-row {
+  display: flex;
+  gap: 4px;
+}
+
+.ip-filter-input-row input {
+  min-width: 140px;
+  font-size: 12px;
+  padding: 8px 10px;
+}
+
+.ip-dropdown-toggle {
+  min-width: auto !important;
+  padding: 6px 6px;
+  font-size: 11px;
+}
+
+.ip-dropdown {
+  min-width: 220px;
+}
+
+.ip-tag {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 4px 8px;
+  margin-bottom: 4px;
+  background: #16213e;
+  border-radius: 4px;
+  font-size: 13px;
+}
+
+.ip-tag button {
+  background: none;
+  border: none;
+  color: #e53e3e;
+  cursor: pointer;
+  padding: 2px 6px;
+  font-size: 12px;
+}
+
+.ip-tag button:hover {
+  color: #f56565;
+  background: none;
+}
+
+.ip-empty {
+  color: #666;
+  font-size: 12px;
+  padding: 4px;
+  text-align: center;
+}
+
 label {
   font-size: 12px;
   color: #aaa;
