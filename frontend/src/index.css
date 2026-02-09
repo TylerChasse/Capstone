@@ -391,12 +391,26 @@ th {
   border-left-color: #60a5fa !important;
 }
 
+.resize-handle {
+  height: 6px;
+  cursor: row-resize;
+  background: transparent;
+  flex-shrink: 0;
+  position: relative;
+}
+
+.resize-handle:hover,
+.resize-handle:active {
+  background: #3182ce;
+  border-radius: 3px;
+}
+
 .packet-details {
   padding: 16px;
   background: #16213e;
   border-radius: 8px;
-  max-height: 200px;
   overflow: auto;
+  flex-shrink: 0;
 }
 
 .packet-details h3 {

@@ -12,13 +12,13 @@ import { getLevel } from '../config/levels';
  *   - Application: HTTP, DNS, TLS details
  *   - Raw Hex: hex dump of packet (advanced)
  */
-function PacketDetails({ interfaceLevel, packet }) {
+function PacketDetails({ interfaceLevel, packet, style }) {
   if (!packet) return null;
 
   const level = getLevel(interfaceLevel);
 
   return (
-    <div className="packet-details">
+    <div className="packet-details" style={style}>
       <h3>Packet #{packet.number} Details</h3>
 
       <div className="detail-section">

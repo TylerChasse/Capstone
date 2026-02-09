@@ -13,7 +13,7 @@
  * The component polls the backend every 500ms during capture to get new packets.
  */
 
-import { useState, useEffect, useRef, useMemo } from 'react';
+import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import * as api from './api';
 import {
   Header,
@@ -70,6 +70,10 @@ function App() {
   const [success, setSuccess] = useState(null);
   const [loading, setLoading] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
+
+  // Resizable panel
+  const [detailsHeight, setDetailsHeight] = useState(200);
+  const isResizing = useRef(false);
 
   // Ref to store the polling interval ID
   const pollInterval = useRef(null);
@@ -320,6 +324,37 @@ function App() {
   }
 
   // -------------------------------------------------------------------------
+  // RESIZE HANDLE
+  // -------------------------------------------------------------------------
+
+  const handleResizeStart = useCallback((e) => {
+    e.preventDefault();
+    isResizing.current = true;
+    const startY = e.clientY;
+    const startHeight = detailsHeight;
+
+    function onMouseMove(e) {
+      if (!isResizing.current) return;
+      const delta = startY - e.clientY;
+      const newHeight = Math.max(80, Math.min(window.innerHeight - 200, startHeight + delta));
+      setDetailsHeight(newHeight);
+    }
+
+    function onMouseUp() {
+      isResizing.current = false;
+      document.removeEventListener('mousemove', onMouseMove);
+      document.removeEventListener('mouseup', onMouseUp);
+      document.body.style.cursor = '';
+      document.body.style.userSelect = '';
+    }
+
+    document.body.style.cursor = 'row-resize';
+    document.body.style.userSelect = 'none';
+    document.addEventListener('mousemove', onMouseMove);
+    document.addEventListener('mouseup', onMouseUp);
+  }, [detailsHeight]);
+
+  // -------------------------------------------------------------------------
   // RENDER
   // -------------------------------------------------------------------------
 
@@ -382,7 +417,13 @@ function App() {
         onAutoScrollChange={setAutoScroll}
       />
 
-      <PacketDetails interfaceLevel={interfaceLevel} packet={selectedPacket} />
+      <div className="resize-handle" onMouseDown={handleResizeStart} />
+
+      <PacketDetails
+        interfaceLevel={interfaceLevel}
+        packet={selectedPacket}
+        style={{ height: detailsHeight, maxHeight: 'none' }}
+      />
     </div>
   );
 }
