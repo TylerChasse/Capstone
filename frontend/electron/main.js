@@ -75,6 +75,12 @@ function createMenu() {
           label: 'Beginner',
           submenu: [
             {
+              label: 'The Fundamentals',
+              click: () => {
+                mainWindow.webContents.send('open-tutorial', 'the-basics');
+              }
+            },
+            {
               label: 'Packet Protocols',
               click: () => {
                 mainWindow.webContents.send('open-tutorial', 'packet-protocols');
