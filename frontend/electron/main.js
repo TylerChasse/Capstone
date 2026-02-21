@@ -12,7 +12,7 @@
  * Communication between them uses IPC (Inter-Process Communication).
  */
 
-const { app, BrowserWindow, ipcMain, dialog } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
 const path = require('path');
 
 let mainWindow;
@@ -45,8 +45,82 @@ function createWindow() {
 // APP LIFECYCLE
 // =============================================================================
 
+// Build custom application menu
+function createMenu() {
+  const template = [
+    {
+      label: 'File',
+      submenu: [
+        { role: 'quit' }
+      ]
+    },
+    {
+      label: 'View',
+      submenu: [
+        { role: 'reload' },
+        { role: 'forceReload' },
+        { role: 'toggleDevTools' },
+        { type: 'separator' },
+        { role: 'resetZoom' },
+        { role: 'zoomIn' },
+        { role: 'zoomOut' },
+        { type: 'separator' },
+        { role: 'togglefullscreen' }
+      ]
+    },
+    {
+      label: 'Tutorials',
+      submenu: [
+        {
+          label: 'Beginner',
+          submenu: [
+            {
+              label: 'Packet Protocols',
+              click: () => {
+                mainWindow.webContents.send('open-tutorial', 'packet-protocols');
+              }
+            }
+          ]
+        },
+        {
+          label: 'Intermediate',
+          submenu: []
+        },
+        {
+          label: 'Advanced',
+          submenu: []
+        }
+      ]
+    },
+    {
+      label: 'Help',
+      submenu: [
+        {
+          label: 'Getting Started',
+          click: () => {
+            mainWindow.webContents.send('open-tutorial', 'getting-started');
+          }
+        },
+        { type: 'separator' },
+        {
+          label: 'Documentation',
+          click: () => {
+            shell.openExternal('https://github.com/TylerChasse/Capstone');
+          }
+        }
+      ]
+    }
+  ];
+
+  const menu = Menu.buildFromTemplate(template);
+  Menu.setApplicationMenu(menu);
+}
+
 // Create window when Electron is ready
-app.whenReady().then(createWindow);
+app.whenReady().then(() => {
+  createMenu();
+  createWindow();
+});
 
 // Quit when all windows are closed (except on macOS)
 app.on('window-all-closed', () => {

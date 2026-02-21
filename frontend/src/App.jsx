@@ -21,7 +21,9 @@ import {
   StatusBar,
   PacketTable,
   PacketDetails,
+  TutorialModal,
 } from './components';
+import tutorials from './tutorials';
 
 const ALL_PROTOCOLS = [
   'TCP', 'UDP', 'HTTP', 'DNS', 'ICMP', 'ARP', 'TLS/SSL', 'STP', 'VRRP', 'PIM', 'Other'
@@ -71,6 +73,9 @@ function App() {
   const [loading, setLoading] = useState(false);
   const [autoScroll, setAutoScroll] = useState(true);
 
+  // Tutorial state
+  const [activeTutorial, setActiveTutorial] = useState(null);
+
   // Resizable panel
   const [detailsHeight, setDetailsHeight] = useState(200);
   const isResizing = useRef(false);
@@ -111,6 +116,16 @@ function App() {
   // Load interfaces when app first mounts
   useEffect(() => {
     loadInterfaces();
+  }, []);
+
+  // Listen for tutorial open events from Electron menu
+  useEffect(() => {
+    if (window.electronAPI?.onOpenTutorial) {
+      window.electronAPI.onOpenTutorial((tutorialId) => {
+        const tutorial = tutorials[tutorialId];
+        if (tutorial) setActiveTutorial(tutorial);
+      });
+    }
   }, []);
 
   // Poll backend for new packets while capture is running
@@ -424,6 +439,13 @@ function App() {
         packet={selectedPacket}
         style={{ height: detailsHeight, maxHeight: 'none' }}
       />
+
+      {activeTutorial && (
+        <TutorialModal
+          tutorial={activeTutorial}
+          onClose={() => setActiveTutorial(null)}
+        />
+      )}
     </div>
   );
 }

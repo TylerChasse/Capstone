@@ -493,3 +493,89 @@ th {
   border-radius: 4px;
   color: #bbf7d0;
 }
+
+/* Tutorial Modal */
+.tutorial-overlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: rgba(0, 0, 0, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 1000;
+}
+
+.tutorial-modal {
+  background: #16213e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 32px;
+  max-width: 600px;
+  width: 90%;
+  max-height: 80vh;
+  overflow: auto;
+  position: relative;
+}
+
+.tutorial-close {
+  position: absolute;
+  top: 12px;
+  right: 16px;
+  background: none;
+  border: none;
+  color: #888;
+  font-size: 18px;
+  cursor: pointer;
+  padding: 4px 8px;
+}
+
+.tutorial-close:hover {
+  color: #eee;
+  background: none;
+}
+
+.tutorial-name {
+  font-size: 18px;
+  font-weight: 600;
+  margin-bottom: 24px;
+  color: #eee;
+}
+
+.tutorial-frame {
+  margin-bottom: 24px;
+}
+
+.tutorial-image {
+  width: 100%;
+  border-radius: 8px;
+  margin-bottom: 16px;
+  border: 1px solid #333;
+}
+
+.tutorial-frame-title {
+  font-size: 16px;
+  font-weight: 600;
+  margin-bottom: 8px;
+  color: #eee;
+}
+
+.tutorial-frame-text {
+  font-size: 14px;
+  line-height: 1.6;
+  color: #ccc;
+}
+
+.tutorial-nav {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+.tutorial-counter {
+  font-size: 13px;
+  color: #888;
+}
