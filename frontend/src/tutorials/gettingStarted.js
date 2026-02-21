@@ -5,6 +5,7 @@ import filtersImage from '../assets/tutorials/gettingStarted/filters.png'
 import packetDetailsImage from '../assets/tutorials/gettingStarted/packetDetails.png'
 import tutorialsImage from '../assets/tutorials/gettingStarted/tutorials.png'
 import detailLevelsImage from '../assets/tutorials/gettingStarted/detailLevels.png'
+import exportImportImage from '../assets/tutorials/gettingStarted/exportImport.png'
 
 export default new Tutorial({
   id: 'getting-started',
@@ -33,6 +34,11 @@ export default new Tutorial({
       title: 'Inspect a Packet',
       text: 'Click any packet in the table to see its details in the panel below. Drag the divider to resize the panels.',
       image: packetDetailsImage
+    }),
+    new Frame({
+      title: 'Import/Export Packets',
+      text: 'Packets in your packet table can be exported to a JSON file by selecting the "Export" button at the top right. Packets can be imported back in from a valid JSON file using the "Import" button',
+      image: exportImportImage
     }),
     new Frame({
       title: 'Use Tutorials',
