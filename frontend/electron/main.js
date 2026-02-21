@@ -96,6 +96,12 @@ function createMenu() {
       label: 'Help',
       submenu: [
         {
+          label: 'What Is a Network Analyzer?',
+          click: () => {
+            mainWindow.webContents.send('open-tutorial', 'what-is-network-analyzer');
+          }
+        },
+        {
           label: 'Getting Started',
           click: () => {
             mainWindow.webContents.send('open-tutorial', 'getting-started');
