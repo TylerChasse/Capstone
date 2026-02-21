@@ -15,4 +15,5 @@ contextBridge.exposeInMainWorld('electronAPI', {
   showSaveDialog: (options) => ipcRenderer.invoke('show-save-dialog', options),
   showOpenDialog: (options) => ipcRenderer.invoke('show-open-dialog', options),
   onOpenTutorial: (callback) => ipcRenderer.on('open-tutorial', (event, tutorialId) => callback(tutorialId)),
+  onShowProtocolColors: (callback) => ipcRenderer.on('show-protocol-colors', () => callback()),
 });

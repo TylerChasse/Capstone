@@ -22,6 +22,7 @@ import {
   PacketTable,
   PacketDetails,
   TutorialModal,
+  ProtocolColorsModal,
 } from './components';
 import tutorials from './tutorials';
 
@@ -75,6 +76,7 @@ function App() {
 
   // Tutorial state
   const [activeTutorial, setActiveTutorial] = useState(null);
+  const [showProtocolColors, setShowProtocolColors] = useState(false);
 
   // Resizable panel
   const [detailsHeight, setDetailsHeight] = useState(200);
@@ -124,6 +126,11 @@ function App() {
       window.electronAPI.onOpenTutorial((tutorialId) => {
         const tutorial = tutorials[tutorialId];
         if (tutorial) setActiveTutorial(tutorial);
+      });
+    }
+    if (window.electronAPI?.onShowProtocolColors) {
+      window.electronAPI.onShowProtocolColors(() => {
+        setShowProtocolColors(true);
       });
     }
   }, []);
@@ -445,6 +452,10 @@ function App() {
           tutorial={activeTutorial}
           onClose={() => setActiveTutorial(null)}
         />
+      )}
+
+      {showProtocolColors && (
+        <ProtocolColorsModal onClose={() => setShowProtocolColors(false)} />
       )}
     </div>
   );

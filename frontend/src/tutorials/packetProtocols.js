@@ -41,8 +41,12 @@ export default new Tutorial({
       text: 'STP prevents loops in network switches by disabling redundant paths. It\'s a Layer 2 protocol you\'ll mainly see on enterprise or managed networks.',
     }),
     new Frame({
-      title: 'Protocol Colors in the Packet List',
-      text: 'Each protocol is color-coded in the packet table for quick identification: TCP is green, UDP is blue, HTTP is yellow, DNS is purple, ICMP is orange, ARP is cyan, TLS is pink, and others are gray.',
+      title: 'VRRP (Virtual Router Redundancy Protocol)',
+      text: 'VRRP provides automatic failover for default gateways. Multiple routers share a virtual IP address, and if the primary router goes down, a backup takes over seamlessly. You\'ll see VRRP advertisements on enterprise networks with redundant routing.',
+    }),
+    new Frame({
+      title: 'PIM (Protocol Independent Multicast)',
+      text: 'PIM is used to route multicast traffic efficiently across networks. Instead of sending the same data to each recipient individually, PIM builds multicast distribution trees so data is delivered to many receivers at once. Common in video streaming and IPTV.',
     }),
   ],
 });

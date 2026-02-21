@@ -101,6 +101,12 @@ function createMenu() {
             mainWindow.webContents.send('open-tutorial', 'getting-started');
           }
         },
+        {
+          label: 'Protocol Colors',
+          click: () => {
+            mainWindow.webContents.send('show-protocol-colors');
+          }
+        },
         { type: 'separator' },
         {
           label: 'Documentation',
