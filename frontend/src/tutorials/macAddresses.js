@@ -31,7 +31,7 @@ export default new Tutorial({
     }),
     new Frame({
       title: 'MAC Addresses in This Tool',
-      text: 'In the packet details panel, the Data Link layer shows the source and destination MAC addresses for each packet. This tells you which physical network interfaces were involved in the local delivery of that packet.',
+      text: 'At the Intermediate interface level, in the packet details panel, the Data Link layer shows the source and destination MAC addresses for each packet. This tells you which physical network interfaces were involved in the local delivery of that packet.',
       image: macAddressesImage
     }),
   ],

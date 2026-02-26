@@ -22,7 +22,7 @@ export default new Tutorial({
     }),
     new Frame({
       title: 'TTL in This Tool',
-      text: 'In the packet details panel, the Network layer shows the TTL (or Hop Limit for IPv6) for each packet. A low TTL on an incoming packet may indicate it traveled many hops, while an unexpectedly high TTL could suggest the packet originated nearby.',
+      text: 'At the Intermediate interface level, in the packet details panel, the Network layer shows the TTL (or Hop Limit for IPv6) for each packet. A low TTL on an incoming packet may indicate it traveled many hops, while an unexpectedly high TTL could suggest the packet originated nearby.',
     }),
   ],
 });

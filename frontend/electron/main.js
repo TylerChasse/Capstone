@@ -107,7 +107,14 @@ function createMenu() {
         },
         {
           label: 'Advanced',
-          submenu: []
+          submenu: [
+            {
+              label: 'Raw Hex',
+              click: () => {
+                mainWindow.webContents.send('open-tutorial', 'raw-hex');
+              }
+            }
+          ]
         }
       ]
     },

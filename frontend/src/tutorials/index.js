@@ -4,6 +4,7 @@ import theFundamentals from './theFundamentals';
 import packetProtocols from './packetProtocols';
 import macAddresses from './macAddresses';
 import ttl from './ttl';
+import rawHex from './rawHex';
 
 const tutorials = {
   'what-is-network-analyzer': whatIsNetworkAnalyzer,
@@ -12,6 +13,7 @@ const tutorials = {
   'packet-protocols': packetProtocols,
   'mac-addresses': macAddresses,
   'ttl': ttl,
+  'raw-hex': rawHex,
 };
 
 export default tutorials;
