@@ -90,7 +90,14 @@ function createMenu() {
         },
         {
           label: 'Intermediate',
-          submenu: []
+          submenu: [
+            {
+              label: 'MAC Addresses',
+              click: () => {
+                mainWindow.webContents.send('open-tutorial', 'mac-addresses');
+              }
+            }
+          ]
         },
         {
           label: 'Advanced',
