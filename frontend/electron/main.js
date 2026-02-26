@@ -96,6 +96,12 @@ function createMenu() {
               click: () => {
                 mainWindow.webContents.send('open-tutorial', 'mac-addresses');
               }
+            },
+            {
+              label: 'TTL (Time to Live)',
+              click: () => {
+                mainWindow.webContents.send('open-tutorial', 'ttl');
+              }
             }
           ]
         },

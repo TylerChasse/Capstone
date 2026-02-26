@@ -3,6 +3,7 @@ import gettingStarted from './gettingStarted';
 import theFundamentals from './theFundamentals';
 import packetProtocols from './packetProtocols';
 import macAddresses from './macAddresses';
+import ttl from './ttl';
 
 const tutorials = {
   'what-is-network-analyzer': whatIsNetworkAnalyzer,
@@ -10,6 +11,7 @@ const tutorials = {
   'the-basics': theFundamentals,
   'packet-protocols': packetProtocols,
   'mac-addresses': macAddresses,
+  'ttl': ttl,
 };
 
 export default tutorials;
