@@ -16,10 +16,11 @@
  */
 
 export class Frame {
-  constructor({ title, text, image = null }) {
+  constructor({ title, text, image = null, highlight = null }) {
     this.title = title;
     this.text = text;
     this.image = image;
+    this.highlight = highlight;
   }
 }
 

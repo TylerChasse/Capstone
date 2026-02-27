@@ -11,12 +11,61 @@ body {
   color: #eee;
 }
 
+.app-layout {
+  display: flex;
+  flex-direction: row;
+  height: 100vh;
+  overflow: hidden;
+}
+
 .app {
   display: flex;
   flex-direction: column;
-  height: 100vh;
+  flex: 1;
+  min-width: 0;
   padding: 16px;
   gap: 16px;
+  overflow: hidden;
+}
+
+.tutorial-pane {
+  display: flex;
+  flex-direction: column;
+  width: 320px;
+  flex-shrink: 0;
+  background: #16213e;
+  border-left: 1px solid #333;
+  padding: 16px;
+  gap: 12px;
+  overflow: hidden;
+}
+
+.tutorial-pane-header {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+.tutorial-pane-header .tutorial-name {
+  margin-bottom: 0;
+  flex: 1;
+}
+
+.tutorial-pane-header .tutorial-close {
+  position: static;
+  flex-shrink: 0;
+}
+
+.tutorial-pane-body {
+  flex: 1;
+  overflow-y: auto;
+}
+
+.tutorial-pane .tutorial-nav {
+  flex-shrink: 0;
+  border-top: 1px solid #333;
+  padding-top: 12px;
 }
 
 .header {
@@ -39,6 +88,10 @@ body {
 
 .level-selector select {
   min-width: 120px;
+}
+
+.interface-select {
+  max-width: 220px;
 }
 
 h1 {
@@ -329,6 +382,19 @@ th {
   cursor: pointer;
 }
 
+/* Tutorial element highlight */
+.tutorial-highlight {
+  outline: 2px solid #3b82f6 !important;
+  outline-offset: 3px;
+  border-radius: 6px;
+  animation: tutorial-pulse 1.5s ease-in-out infinite;
+}
+
+@keyframes tutorial-pulse {
+  0%, 100% { box-shadow: 0 0 0 3px rgba(59, 130, 246, 0.3); }
+  50%       { box-shadow: 0 0 0 7px rgba(59, 130, 246, 0.08); }
+}
+
 /* Protocol color coding */
 .packet-row.proto-tcp {
   background: rgba(76, 175, 80, 0.15);
@@ -492,6 +558,62 @@ th {
   background: #14532d;
   border-radius: 4px;
   color: #bbf7d0;
+}
+
+/* Tutorials dropdown in header */
+.tutorial-dropdown {
+  position: relative;
+}
+
+.tutorial-dropdown-toggle {
+  white-space: nowrap;
+}
+
+.tutorial-dropdown-menu {
+  position: absolute;
+  top: calc(100% + 4px);
+  left: 0;
+  background: #1a2744;
+  border: 1px solid #333;
+  border-radius: 6px;
+  padding: 4px 0;
+  min-width: 220px;
+  z-index: 100;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+}
+
+.tutorial-menu-item,
+.tutorial-menu-group-toggle {
+  display: block;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #ccc;
+  padding: 7px 14px;
+  font-size: 13px;
+  cursor: pointer;
+  border-radius: 0;
+}
+
+.tutorial-menu-item:hover,
+.tutorial-menu-group-toggle:hover {
+  background: #2a3a5c;
+  color: #eee;
+}
+
+.tutorial-menu-separator {
+  height: 1px;
+  background: #333;
+  margin: 4px 0;
+}
+
+.tutorial-menu-children {
+  background: #141e35;
+}
+
+.tutorial-menu-child {
+  padding-left: 28px;
 }
 
 /* Tutorial Modal */

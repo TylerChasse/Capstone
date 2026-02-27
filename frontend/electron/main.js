@@ -69,70 +69,8 @@ function createMenu() {
       ]
     },
     {
-      label: 'Tutorials',
-      submenu: [
-        {
-          label: 'Beginner',
-          submenu: [
-            {
-              label: 'The Fundamentals',
-              click: () => {
-                mainWindow.webContents.send('open-tutorial', 'the-basics');
-              }
-            },
-            {
-              label: 'Packet Protocols',
-              click: () => {
-                mainWindow.webContents.send('open-tutorial', 'packet-protocols');
-              }
-            }
-          ]
-        },
-        {
-          label: 'Intermediate',
-          submenu: [
-            {
-              label: 'MAC Addresses',
-              click: () => {
-                mainWindow.webContents.send('open-tutorial', 'mac-addresses');
-              }
-            },
-            {
-              label: 'TTL (Time to Live)',
-              click: () => {
-                mainWindow.webContents.send('open-tutorial', 'ttl');
-              }
-            }
-          ]
-        },
-        {
-          label: 'Advanced',
-          submenu: [
-            {
-              label: 'Raw Hex',
-              click: () => {
-                mainWindow.webContents.send('open-tutorial', 'raw-hex');
-              }
-            }
-          ]
-        }
-      ]
-    },
-    {
       label: 'Help',
       submenu: [
-        {
-          label: 'What Is a Network Analyzer?',
-          click: () => {
-            mainWindow.webContents.send('open-tutorial', 'what-is-network-analyzer');
-          }
-        },
-        {
-          label: 'Getting Started',
-          click: () => {
-            mainWindow.webContents.send('open-tutorial', 'getting-started');
-          }
-        },
         {
           label: 'Protocol Colors',
           click: () => {

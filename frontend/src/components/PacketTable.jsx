@@ -70,7 +70,7 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, 
   const level = getLevel(interfaceLevel);
 
   return (
-    <div className="packet-table-container" ref={containerRef} onScroll={handleScroll}>
+    <div className="packet-table-container" ref={containerRef} onScroll={handleScroll} data-highlight="packet-table">
       <table>
         <thead>
           <tr>

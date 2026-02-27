@@ -18,7 +18,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
   const level = getLevel(interfaceLevel);
 
   return (
-    <div className="packet-details" style={style}>
+    <div className="packet-details" style={style} data-highlight="packet-details">
       <h3>Packet #{packet.number} Details</h3>
 
       <div className="detail-section">

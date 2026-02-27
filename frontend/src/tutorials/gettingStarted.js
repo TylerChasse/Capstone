@@ -1,11 +1,4 @@
 import { Tutorial, Frame } from './Tutorial';
-import interfaceSelectionImage from '../assets/tutorials/gettingStarted/interfaceSelection.png'
-import startCaptureImage from '../assets/tutorials/gettingStarted/startCapture.png'
-import filtersImage from '../assets/tutorials/gettingStarted/filters.png'
-import packetDetailsImage from '../assets/tutorials/gettingStarted/packetDetails.png'
-import tutorialsImage from '../assets/tutorials/gettingStarted/tutorials.png'
-import detailLevelsImage from '../assets/tutorials/gettingStarted/detailLevels.png'
-import exportImportImage from '../assets/tutorials/gettingStarted/exportImport.png'
 
 export default new Tutorial({
   id: 'getting-started',
@@ -18,37 +11,37 @@ export default new Tutorial({
     new Frame({
       title: 'Select an Interface',
       text: 'A network interface is where packet traffic occurs and can be captured from. This will likely be an Ethernet or Wi-Fi interface. Choose a network interface from the dropdown in the top-left corner. Connected interfaces are labeled "(Connected)". Click "Refresh" if your interface doesn\'t appear.',
-      image: interfaceSelectionImage
+      highlight: 'interface-selector',
     }),
     new Frame({
       title: 'Start a Capture',
       text: 'Click "Start Capture" to begin capturing packets on the selected interface. Packets will appear in the table in real time as they are captured.',
-      image: startCaptureImage
+      highlight: 'start-capture',
     }),
     new Frame({
       title: 'Filter Packets',
       text: 'Use the Protocol Filter to show/hide specific protocols and packet types. Use the IP Filter to focus on traffic to or from specific addresses.',
-      image: filtersImage
+      highlight: ['protocol-filter', 'ip-filter'],
     }),
     new Frame({
       title: 'Inspect a Packet',
       text: 'Click any packet in the table to see its details in the panel below. Drag the divider to resize the panels.',
-      image: packetDetailsImage
+      highlight: 'packet-table',
     }),
     new Frame({
       title: 'Import/Export Packets',
       text: 'Packets in your packet table can be exported to a JSON file by selecting the "Export" button at the top right. Packets can be imported back in from a valid JSON file using the "Import" button',
-      image: exportImportImage
+      highlight: ['export-button', 'import-button'],
     }),
     new Frame({
       title: 'Use Tutorials',
-      text: 'Access Tutorials from the "Tutorials" tab in the top toolbar to learn about these packet details. Beginner tutorials may be a good place to start.',
-      image: tutorialsImage
+      text: 'Access Tutorials from the "Tutorials" button in the header to learn about these packet details. Beginner tutorials may be a good place to start.',
+      highlight: 'tutorials-button',
     }),
     new Frame({
       title: 'Change Detail Level',
       text: 'When ready, switch between Beginner, Intermediate, and Advanced levels to reveal more detail and information. For example, you may find MAC addresses, TTL, layer sizes, and raw hex data at higher levels.',
-      image: detailLevelsImage
+      highlight: 'level-selector',
     }),
   ],
 });

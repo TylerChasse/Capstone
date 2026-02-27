@@ -1,5 +1,4 @@
 import { Tutorial, Frame } from './Tutorial';
-import macAddressesImage from '../assets/tutorials/macAddresses/macAddresses.png'
 
 export default new Tutorial({
   id: 'mac-addresses',
@@ -32,7 +31,7 @@ export default new Tutorial({
     new Frame({
       title: 'MAC Addresses in This Tool',
       text: 'At the Intermediate interface level, in the packet details panel, the Data Link layer shows the source and destination MAC addresses for each packet. This tells you which physical network interfaces were involved in the local delivery of that packet.',
-      image: macAddressesImage
+      highlight: 'packet-details',
     }),
   ],
 });

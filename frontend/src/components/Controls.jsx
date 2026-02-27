@@ -81,7 +81,7 @@ function Controls({
   return (
     <div className="controls">
       {/* Protocol Filter */}
-      <div className="filter-group" ref={protocolRef}>
+      <div className="filter-group" ref={protocolRef} data-highlight="protocol-filter">
         <label>Protocol Filter:</label>
         <div className="filter-dropdown-wrapper">
           <button
@@ -112,7 +112,7 @@ function Controls({
       </div>
 
       {/* IP Filter */}
-      <div className="filter-group" ref={ipRef}>
+      <div className="filter-group" ref={ipRef} data-highlight="ip-filter">
         <label>IP Filter:</label>
         <div className="filter-dropdown-wrapper">
           <div className="ip-filter-input-row">
@@ -153,10 +153,11 @@ function Controls({
       </div>
 
       {/* Capture Buttons */}
-      <div className="control-group" style={{ marginLeft: 'auto' }}>
+      <div className="control-group" style={{ marginLeft: 'auto' }} data-highlight="capture-controls">
         {!isCapturing ? (
           <button
             className="primary"
+            data-highlight="start-capture"
             onClick={onStartCapture}
             disabled={loading || !selectedInterface}
           >

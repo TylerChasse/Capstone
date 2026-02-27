@@ -22,6 +22,7 @@ import {
   PacketTable,
   PacketDetails,
   TutorialModal,
+  TutorialPane,
   ProtocolColorsModal,
 } from './components';
 import tutorials from './tutorials';
@@ -77,6 +78,7 @@ function App() {
   // Tutorial state
   const [activeTutorial, setActiveTutorial] = useState(null);
   const [showProtocolColors, setShowProtocolColors] = useState(false);
+  const [activeHighlight, setActiveHighlight] = useState(null);
 
   // Resizable panel
   const [detailsHeight, setDetailsHeight] = useState(200);
@@ -134,6 +136,20 @@ function App() {
       });
     }
   }, []);
+
+  // Apply/remove tutorial highlight on UI elements
+  useEffect(() => {
+    document.querySelectorAll('.tutorial-highlight').forEach((el) => {
+      el.classList.remove('tutorial-highlight');
+    });
+    if (activeHighlight) {
+      const targets = Array.isArray(activeHighlight) ? activeHighlight : [activeHighlight];
+      targets.forEach((id) => {
+        const el = document.querySelector(`[data-highlight="${id}"]`);
+        if (el) el.classList.add('tutorial-highlight');
+      });
+    }
+  }, [activeHighlight]);
 
   // Poll backend for new packets while capture is running
   useEffect(() => {
@@ -381,76 +397,83 @@ function App() {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="app">
-      <Header
-        interfaces={interfaces}
-        connectedInterfaces={connectedInterfaces}
-        selectedInterface={selectedInterface}
-        onInterfaceChange={setSelectedInterface}
-        isCapturing={isCapturing}
-        loading={loading}
-        onRefresh={loadInterfaces}
-        onExport={handleExport}
-        onImport={handleImport}
-        canExport={packets.length > 0}
-        interfaceLevel={interfaceLevel}
-        onLevelChange={setInterfaceLevel}
-      />
+    <div className="app-layout">
+      <div className="app">
+        <Header
+          interfaces={interfaces}
+          connectedInterfaces={connectedInterfaces}
+          selectedInterface={selectedInterface}
+          onInterfaceChange={setSelectedInterface}
+          isCapturing={isCapturing}
+          loading={loading}
+          onRefresh={loadInterfaces}
+          onExport={handleExport}
+          onImport={handleImport}
+          canExport={packets.length > 0}
+          interfaceLevel={interfaceLevel}
+          onLevelChange={setInterfaceLevel}
+          onOpenTutorial={(id) => {
+            const tutorial = tutorials[id];
+            if (tutorial) setActiveTutorial(tutorial);
+          }}
+        />
 
-      {error && <div className="error-message">{error}</div>}
-      {success && <div className="success-message">{success}</div>}
+        {error && <div className="error-message">{error}</div>}
+        {success && <div className="success-message">{success}</div>}
 
-      <Controls
-        protocolFilters={protocolFilters}
-        onProtocolFiltersChange={setProtocolFilters}
-        ipFilters={ipFilters}
-        onIpFiltersChange={setIpFilters}
-        isCapturing={isCapturing}
-        loading={loading}
-        selectedInterface={selectedInterface}
-        onStartCapture={handleStartCapture}
-        onStopCapture={handleStopCapture}
-        onClear={handleClearPackets}
-        canClear={packets.length > 0}
-      />
+        <Controls
+          protocolFilters={protocolFilters}
+          onProtocolFiltersChange={setProtocolFilters}
+          ipFilters={ipFilters}
+          onIpFiltersChange={setIpFilters}
+          isCapturing={isCapturing}
+          loading={loading}
+          selectedInterface={selectedInterface}
+          onStartCapture={handleStartCapture}
+          onStopCapture={handleStopCapture}
+          onClear={handleClearPackets}
+          canClear={packets.length > 0}
+        />
 
-      <StatusBar
-        interfaceLevel={interfaceLevel}
-        isCapturing={isCapturing}
-        packetCount={packets.length}
-        filteredCount={filteredPackets.length}
-        selectedInterface={selectedInterface}
-        isConnected={isConnected(selectedInterface)}
-        selectedPacketIndex={selectedPacketIndex}
-        onFirstPacket={handleFirstPacket}
-        onPrevPacket={handlePrevPacket}
-        onNextPacket={handleNextPacket}
-        onLastPacket={handleLastPacket}
-        autoScroll={autoScroll}
-        onToggleAutoScroll={handleToggleAutoScroll}
-      />
+        <StatusBar
+          interfaceLevel={interfaceLevel}
+          isCapturing={isCapturing}
+          packetCount={packets.length}
+          filteredCount={filteredPackets.length}
+          selectedInterface={selectedInterface}
+          isConnected={isConnected(selectedInterface)}
+          selectedPacketIndex={selectedPacketIndex}
+          onFirstPacket={handleFirstPacket}
+          onPrevPacket={handlePrevPacket}
+          onNextPacket={handleNextPacket}
+          onLastPacket={handleLastPacket}
+          autoScroll={autoScroll}
+          onToggleAutoScroll={handleToggleAutoScroll}
+        />
 
-      <PacketTable
-        interfaceLevel={interfaceLevel}
-        packets={filteredPackets}
-        selectedPacket={selectedPacket}
-        onSelectPacket={setSelectedPacket}
-        autoScroll={autoScroll}
-        onAutoScrollChange={setAutoScroll}
-      />
+        <PacketTable
+          interfaceLevel={interfaceLevel}
+          packets={filteredPackets}
+          selectedPacket={selectedPacket}
+          onSelectPacket={setSelectedPacket}
+          autoScroll={autoScroll}
+          onAutoScrollChange={setAutoScroll}
+        />
 
-      <div className="resize-handle" onMouseDown={handleResizeStart} />
+        <div className="resize-handle" onMouseDown={handleResizeStart} />
 
-      <PacketDetails
-        interfaceLevel={interfaceLevel}
-        packet={selectedPacket}
-        style={{ height: detailsHeight, maxHeight: 'none' }}
-      />
+        <PacketDetails
+          interfaceLevel={interfaceLevel}
+          packet={selectedPacket}
+          style={{ height: detailsHeight, maxHeight: 'none' }}
+        />
+      </div>
 
       {activeTutorial && (
-        <TutorialModal
+        <TutorialPane
           tutorial={activeTutorial}
-          onClose={() => setActiveTutorial(null)}
+          onClose={() => { setActiveTutorial(null); setActiveHighlight(null); }}
+          onHighlight={setActiveHighlight}
         />
       )}
 
