@@ -21,9 +21,6 @@ function getProtocolClass(protocol) {
   if (proto.includes('ICMP')) return 'proto-icmp';
   if (proto.includes('ARP')) return 'proto-arp';
   if (proto.includes('TLS') || proto.includes('SSL')) return 'proto-tls';
-  if (proto.includes('STP')) return 'proto-stp';
-  if (proto.includes('VRRP')) return 'proto-vrrp';
-  if (proto.includes('PIM')) return 'proto-pim';
 
   return 'proto-other';
 }
@@ -74,13 +71,13 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, 
       <table>
         <thead>
           <tr>
-            <th title="Packet sequence number">#</th>
-            <th title="Time the packet was captured">Time</th>
-            <th title="Source IP or MAC address">Source</th>
-            <th title="Destination IP or MAC address">Destination</th>
-            <th title="Highest-layer protocol detected">Protocol</th>
-            <th title="Total packet size in bytes">Length</th>
-            {level.showInfoColumn && <th title="Port info or protocol layer summary">Info</th>}
+            <th title="Packet sequence number" data-highlight="col-number">#</th>
+            <th title="Time the packet was captured" data-highlight="col-time">Time</th>
+            <th title="Source IP or MAC address" data-highlight="col-source">Source</th>
+            <th title="Destination IP or MAC address" data-highlight="col-destination">Destination</th>
+            <th title="Highest-layer protocol detected" data-highlight="col-protocol">Protocol</th>
+            <th title="Total packet size in bytes" data-highlight="col-length">Length</th>
+            {level.showInfoColumn && <th title="Port info or protocol layer summary" data-highlight="col-info">Info</th>}
           </tr>
         </thead>
         <tbody>
@@ -90,6 +87,7 @@ function PacketTable({ interfaceLevel, packets, selectedPacket, onSelectPacket, 
             <tr
               key={packet.number}
               ref={isSelected ? selectedRowRef : null}
+              data-highlight={`row-${packet.number}`}
               className={`packet-row ${getProtocolClass(packet.protocol)} ${isSelected ? 'selected' : ''}`}
               onClick={() => onSelectPacket(packet)}
             >

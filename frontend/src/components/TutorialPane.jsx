@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 
 /**
  * TutorialPane - Side panel for step-by-step tutorials
@@ -6,14 +6,24 @@ import { useState, useEffect } from 'react';
  * Renders alongside the main tool so the user can follow along
  * while still using the application.
  */
-function TutorialPane({ tutorial, onClose, onHighlight }) {
+function TutorialPane({ tutorial, onClose, onHighlight, onAction, onSelectPacket }) {
   const [frameIndex, setFrameIndex] = useState(0);
 
   const frame = tutorial?.frames[frameIndex];
 
-  // Notify parent of the current frame's highlight target
+  // Keep a ref to onSelectPacket so the frame-change effect doesn't re-fire
+  // when the parent re-renders and passes a new inline function reference.
+  const onSelectPacketRef = useRef(onSelectPacket);
+  useEffect(() => { onSelectPacketRef.current = onSelectPacket; });
+
+  // Notify parent of the current frame's highlight and auto-select a packet
+  // once when the frame changes — does not re-run on parent re-renders so the
+  // user can freely click other packets without being overridden.
   useEffect(() => {
     if (onHighlight) onHighlight(frame?.highlight ?? null);
+    if (onSelectPacketRef.current && frame?.selectPacket) {
+      onSelectPacketRef.current(frame.selectPacket);
+    }
   }, [frame, onHighlight]);
 
   // Clear highlight when pane unmounts
@@ -55,6 +65,16 @@ function TutorialPane({ tutorial, onClose, onHighlight }) {
         </span>
         {isLast ? (
           <button className="primary" onClick={onClose}>Finish</button>
+        ) : frame.actionButton ? (
+          <button
+            className="primary tutorial-action-btn"
+            onClick={() => {
+              if (onAction) onAction(frame.actionButton.action);
+              setFrameIndex(frameIndex + 1);
+            }}
+          >
+            {frame.actionButton.label}
+          </button>
         ) : (
           <button className="primary" onClick={() => setFrameIndex(frameIndex + 1)}>
             Next

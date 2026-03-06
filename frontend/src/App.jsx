@@ -26,9 +26,17 @@ import {
   ProtocolColorsModal,
 } from './components';
 import tutorials from './tutorials';
+import fundamentalsSample from './tutorials/samples/fundamentalsSample';
+import whatIsNetworkAnalyzerSample from './tutorials/samples/whatIsNetworkAnalyzerSample';
+import gettingStartedSample from './tutorials/samples/gettingStartedSample';
+import packetProtocolsSample from './tutorials/samples/packetProtocolsSample';
+import macAddressesSample from './tutorials/samples/macAddressesSample';
+import ttlSample from './tutorials/samples/ttlSample';
+import packetLengthsSample from './tutorials/samples/packetLengthsSample';
+import rawHexSample from './tutorials/samples/rawHexSample';
 
 const ALL_PROTOCOLS = [
-  'TCP', 'UDP', 'HTTP', 'DNS', 'ICMP', 'ARP', 'TLS/SSL', 'STP', 'VRRP', 'PIM', 'Other'
+  'TCP', 'UDP', 'HTTP', 'DNS', 'ICMP', 'ARP', 'TLS/SSL', 'Other'
 ];
 
 /** Map a packet's protocol string to a filter category */
@@ -41,9 +49,6 @@ function getProtocolCategory(protocol) {
   if (proto.includes('ICMP')) return 'ICMP';
   if (proto.includes('ARP')) return 'ARP';
   if (proto.includes('TLS') || proto.includes('SSL')) return 'TLS/SSL';
-  if (proto.includes('STP')) return 'STP';
-  if (proto.includes('VRRP')) return 'VRRP';
-  if (proto.includes('PIM')) return 'PIM';
   return 'Other';
 }
 
@@ -244,7 +249,23 @@ function App() {
     }
   }
 
-  /** Clear all captured packets */
+  function handleTutorialAction(action) {
+    const sampleMap = {
+      'load-fundamentals-sample': fundamentalsSample,
+      'load-what-is-network-analyzer-sample': whatIsNetworkAnalyzerSample,
+      'load-getting-started-sample': gettingStartedSample,
+      'load-packet-protocols-sample': packetProtocolsSample,
+      'load-mac-addresses-sample': macAddressesSample,
+      'load-ttl-sample': ttlSample,
+      'load-packet-lengths-sample': packetLengthsSample,
+      'load-raw-hex-sample': rawHexSample,
+    };
+    if (sampleMap[action]) {
+      setPackets(sampleMap[action]);
+      setSelectedPacket(null);
+    }
+  }
+
   async function handleClearPackets() {
     try {
       await api.clearPackets();
@@ -471,9 +492,19 @@ function App() {
 
       {activeTutorial && (
         <TutorialPane
+          key={activeTutorial.id}
           tutorial={activeTutorial}
           onClose={() => { setActiveTutorial(null); setActiveHighlight(null); }}
           onHighlight={setActiveHighlight}
+          onAction={handleTutorialAction}
+          onSelectPacket={(which) => {
+            if (which === 'first' && packets.length > 0) {
+              setSelectedPacket(packets[0]);
+            } else if (typeof which === 'number') {
+              const found = packets.find(p => p.number === which);
+              if (found) setSelectedPacket(found);
+            }
+          }}
         />
       )}
 

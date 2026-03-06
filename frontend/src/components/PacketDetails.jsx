@@ -11,6 +11,11 @@ import { getLevel } from '../config/levels';
  *   - ARP: MAC/IP mappings
  *   - Application: HTTP, DNS, TLS details
  *   - Raw Hex: hex dump of packet (advanced)
+ *
+ * data-highlight targets:
+ *   packet-details, detail-general, detail-datalink,
+ *   detail-network, detail-transport, detail-arp,
+ *   detail-application, detail-raw-hex
  */
 function PacketDetails({ interfaceLevel, packet, style }) {
   if (!packet) return null;
@@ -21,7 +26,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
     <div className="packet-details" style={style} data-highlight="packet-details">
       <h3>Packet #{packet.number} Details</h3>
 
-      <div className="detail-section">
+      <div className="detail-section" data-highlight="detail-general">
         <h4>General</h4>
         <div className="detail-row">
           <span className="label" title="Time the packet was captured">Timestamp:</span>
@@ -48,7 +53,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
       </div>
 
       {level.showMacAddresses && packet.ethernet && (
-        <div className="detail-section">
+        <div className="detail-section" data-highlight="detail-datalink">
           <h4>Data Link Layer</h4>
           <div className="detail-row">
             <span className="label" title="Hardware address of the sending device">Source MAC:</span>
@@ -68,7 +73,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
       )}
 
       {packet.network && (
-        <div className="detail-section">
+        <div className="detail-section" data-highlight="detail-network">
           <h4>Network Layer</h4>
           <div className="detail-row">
             <span className="label" title="IP address of the sender">Source IP:</span>
@@ -100,7 +105,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
       )}
 
       {packet.transport && (
-        <div className="detail-section">
+        <div className="detail-section" data-highlight="detail-transport">
           <h4>Transport Layer</h4>
           <div className="detail-row">
             <span className="label" title="Port number on the sending host">Source Port:</span>
@@ -132,7 +137,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
       )}
 
       {packet.arp && (
-        <div className="detail-section">
+        <div className="detail-section" data-highlight="detail-arp">
           <h4>ARP</h4>
           <div className="detail-row">
             <span className="label" title="ARP request or reply">Operation:</span>
@@ -158,7 +163,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
       )}
 
       {packet.application && (
-        <div className="detail-section">
+        <div className="detail-section" data-highlight="detail-application">
           <h4>Application Layer</h4>
           {packet.application.http_host && (
             <div className="detail-row">
@@ -182,7 +187,7 @@ function PacketDetails({ interfaceLevel, packet, style }) {
       )}
 
       {level.showRawHex && packet.raw_hex && (
-        <div className="detail-section">
+        <div className="detail-section" data-highlight="detail-raw-hex">
           <h4 title="Raw packet bytes in hexadecimal format">Raw Hex</h4>
           <pre className="raw-hex">{
             packet.raw_hex.match(/.{1,32}/g)?.map((line, i) => {

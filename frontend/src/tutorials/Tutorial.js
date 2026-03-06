@@ -16,11 +16,15 @@
  */
 
 export class Frame {
-  constructor({ title, text, image = null, highlight = null }) {
+  constructor({ title, text, image = null, highlight = null, actionButton = null, selectPacket = null }) {
     this.title = title;
     this.text = text;
     this.image = image;
     this.highlight = highlight;
+    // actionButton: { label, action } — replaces the Next button with a custom action
+    this.actionButton = actionButton;
+    // selectPacket: 'first' — auto-selects a packet when this frame is shown
+    this.selectPacket = selectPacket;
   }
 }
 

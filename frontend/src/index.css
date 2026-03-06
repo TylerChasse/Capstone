@@ -68,6 +68,11 @@ body {
   padding-top: 12px;
 }
 
+.tutorial-action-btn {
+  font-size: 12px !important;
+  padding: 8px 10px !important;
+}
+
 .header {
   display: flex;
   justify-content: space-between;

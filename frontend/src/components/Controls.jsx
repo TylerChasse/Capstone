@@ -1,7 +1,7 @@
 import { useState, useRef, useEffect } from 'react';
 
 const ALL_PROTOCOLS = [
-  'TCP', 'UDP', 'HTTP', 'DNS', 'ICMP', 'ARP', 'TLS/SSL', 'STP', 'VRRP', 'PIM', 'Other'
+  'TCP', 'UDP', 'HTTP', 'DNS', 'ICMP', 'ARP', 'TLS/SSL', 'Other'
 ];
 
 /**

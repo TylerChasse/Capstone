@@ -6,9 +6,6 @@ const PROTOCOL_COLORS = [
   { name: 'ICMP',    color: '#ff5722' },
   { name: 'ARP',     color: '#00bcd4' },
   { name: 'TLS/SSL', color: '#e91e63' },
-  { name: 'STP',     color: '#795548' },
-  { name: 'VRRP',    color: '#3f51b5' },
-  { name: 'PIM',     color: '#009688' },
   { name: 'Other',   color: '#9e9e9e' },
 ];
 
