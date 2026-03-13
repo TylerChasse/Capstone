@@ -110,6 +110,7 @@ exports/
 test_captures/
 test_*.json
 temp_*/
+tests/debug_capture.py
 
 # Temporary files
 *.tmp

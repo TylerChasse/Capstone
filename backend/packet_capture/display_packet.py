@@ -105,16 +105,14 @@ def parse_packet(packet: Any, number: int) -> PacketInfo:
         pass
 
     # Parse ARP packets
+    # PyShark exposes ARP sub-fields with dot notation (e.g. 'src.proto_ipv4'),
+    # accessed via getattr since Python attribute syntax can't contain dots.
     if hasattr(packet, 'arp'):
         info.protocol = "ARP"
-        if hasattr(packet.arp, 'src_proto_ipv4'):
-            info.arp_sender_ip = packet.arp.src_proto_ipv4
-        if hasattr(packet.arp, 'src_hw_mac'):
-            info.arp_sender_mac = packet.arp.src_hw_mac
-        if hasattr(packet.arp, 'dst_proto_ipv4'):
-            info.arp_target_ip = packet.arp.dst_proto_ipv4
-        if hasattr(packet.arp, 'dst_hw_mac'):
-            info.arp_target_mac = packet.arp.dst_hw_mac
+        info.arp_sender_ip  = getattr(packet.arp, 'src.proto_ipv4', None)
+        info.arp_sender_mac = getattr(packet.arp, 'src.hw_mac', None)
+        info.arp_target_ip  = getattr(packet.arp, 'dst.proto_ipv4', None)
+        info.arp_target_mac = getattr(packet.arp, 'dst.hw_mac', None)
         if hasattr(packet.arp, 'opcode'):
             opcode = packet.arp.opcode
             info.arp_type = "Request" if opcode == "1" else "Reply" if opcode == "2" else opcode
