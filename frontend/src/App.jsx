@@ -30,6 +30,7 @@ import tutorials from './tutorials';
 import fundamentalsSample from './tutorials/samples/fundamentalsSample';
 import tcpHandshakeSample from './tutorials/samples/tcpHandshakeSample';
 import dnsResolutionSample from './tutorials/samples/dnsResolutionSample';
+import portsSample from './tutorials/samples/portsSample';
 import whatIsNetworkAnalyzerSample from './tutorials/samples/whatIsNetworkAnalyzerSample';
 import gettingStartedSample from './tutorials/samples/gettingStartedSample';
 import packetProtocolsSample from './tutorials/samples/packetProtocolsSample';
@@ -242,6 +243,7 @@ function App() {
       'load-fundamentals-sample': fundamentalsSample,
       'load-tcp-handshake-sample': tcpHandshakeSample,
       'load-dns-resolution-sample': dnsResolutionSample,
+      'load-ports-sample': portsSample,
       'load-what-is-network-analyzer-sample': whatIsNetworkAnalyzerSample,
       'load-getting-started-sample': gettingStartedSample,
       'load-packet-protocols-sample': packetProtocolsSample,

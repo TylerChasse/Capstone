@@ -9,6 +9,7 @@ const TUTORIAL_MENU = [
     label: 'Beginner', children: [
       { id: 'the-basics', label: 'The Fundamentals' },
       { id: 'packet-protocols', label: 'Packet Protocols' },
+      { id: 'ports', label: 'Ports' },
       { id: 'tcp-handshake', label: 'TCP Handshake' },
     ]
   },
