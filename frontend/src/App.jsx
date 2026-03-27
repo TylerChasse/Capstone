@@ -409,6 +409,10 @@ function App() {
         onExport={handleExport}
         onImport={handleImport}
         onShowProtocolColors={() => setShowProtocolColors(true)}
+        onOpenTutorial={(id) => {
+          const tutorial = tutorials[id];
+          if (tutorial) setActiveTutorial(tutorial);
+        }}
       />
       <div className="app-layout">
       <div className="app">
@@ -422,10 +426,6 @@ function App() {
           onRefresh={loadInterfaces}
           interfaceLevel={interfaceLevel}
           onLevelChange={setInterfaceLevel}
-          onOpenTutorial={(id) => {
-            const tutorial = tutorials[id];
-            if (tutorial) setActiveTutorial(tutorial);
-          }}
         />
 
         {error && <div className="error-message">{error}</div>}

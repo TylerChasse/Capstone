@@ -1,6 +1,30 @@
 import { useState, useRef, useEffect } from 'react';
 import GlossaryModal from './Glossary';
 
+const TUTORIAL_MENU = [
+  { id: 'what-is-network-analyzer', label: 'What Is a Network Analyzer?' },
+  { id: 'getting-started', label: 'Getting Started' },
+  { type: 'separator' },
+  {
+    label: 'Beginner', children: [
+      { id: 'the-basics', label: 'The Fundamentals' },
+      { id: 'packet-protocols', label: 'Packet Protocols' },
+    ]
+  },
+  {
+    label: 'Intermediate', children: [
+      { id: 'mac-addresses', label: 'MAC Addresses' },
+      { id: 'ttl', label: 'TTL (Time to Live)' },
+    ]
+  },
+  {
+    label: 'Advanced', children: [
+      { id: 'packet-lengths', label: 'Packet & Layer Lengths' },
+      { id: 'raw-hex', label: 'Raw Hex' },
+    ]
+  },
+];
+
 /**
  * MenuBar - Custom application menu bar replacing the native Electron menu.
  *
@@ -9,10 +33,11 @@ import GlossaryModal from './Glossary';
  *
  * data-highlight targets:
  *   file-menu, export-button, import-button,
- *   view-menu, help-menu, protocol-colors-button
+ *   view-menu, tutorials-button, help-menu, protocol-colors-button
  */
-function MenuBar({ onExport, onImport, onShowProtocolColors }) {
+function MenuBar({ onExport, onImport, onShowProtocolColors, onOpenTutorial }) {
   const [openMenu, setOpenMenu] = useState(null);
+  const [expandedGroup, setExpandedGroup] = useState(null);
   const [showGlossary, setShowGlossary] = useState(false);
   const barRef = useRef(null);
 
@@ -45,16 +70,31 @@ function MenuBar({ onExport, onImport, onShowProtocolColors }) {
   }, [onExport, onImport]);
 
   function toggle(menu) {
-    setOpenMenu(openMenu === menu ? null : menu);
+    if (openMenu === menu) {
+      setOpenMenu(null);
+    } else {
+      setOpenMenu(menu);
+      setExpandedGroup(null);
+    }
   }
 
   function hover(menu) {
-    if (openMenu !== null) setOpenMenu(menu);
+    if (openMenu !== null) {
+      setOpenMenu(menu);
+      setExpandedGroup(null);
+    }
   }
 
   function action(fn) {
     setOpenMenu(null);
+    setExpandedGroup(null);
     fn();
+  }
+
+  function handleTutorialSelect(id) {
+    setOpenMenu(null);
+    setExpandedGroup(null);
+    onOpenTutorial(id);
   }
 
   const api = window.electronAPI;
@@ -105,6 +145,55 @@ function MenuBar({ onExport, onImport, onShowProtocolColors }) {
               <button onClick={() => action(() => api?.windowZoomOut())}>Zoom Out</button>
               <div className="menu-separator" />
               <button onClick={() => action(() => api?.windowToggleFullscreen())}>Toggle Fullscreen</button>
+            </div>
+          )}
+        </div>
+
+        {/* ---- Tutorials ---- */}
+        <div className="menu-item" data-highlight="tutorials-button">
+          <button
+            className={openMenu === 'tutorials' ? 'active' : ''}
+            onClick={() => toggle('tutorials')}
+            onMouseEnter={() => hover('tutorials')}
+          >
+            Tutorials
+          </button>
+          {openMenu === 'tutorials' && (
+            <div className="menu-dropdown">
+              {TUTORIAL_MENU.map((item, i) => {
+                if (item.type === 'separator') {
+                  return <div key={i} className="menu-separator" />;
+                }
+                if (item.children) {
+                  return (
+                    <div key={item.label} className="tutorial-menu-group">
+                      <button
+                        onClick={() => setExpandedGroup(expandedGroup === item.label ? null : item.label)}
+                      >
+                        {item.label} {expandedGroup === item.label ? '▲' : '▼'}
+                      </button>
+                      {expandedGroup === item.label && (
+                        <div>
+                          {item.children.map((child) => (
+                            <button
+                              key={child.id}
+                              className="tutorial-menu-child"
+                              onClick={() => handleTutorialSelect(child.id)}
+                            >
+                              {child.label}
+                            </button>
+                          ))}
+                        </div>
+                      )}
+                    </div>
+                  );
+                }
+                return (
+                  <button key={item.id} onClick={() => handleTutorialSelect(item.id)}>
+                    {item.label}
+                  </button>
+                );
+              })}
             </div>
           )}
         </div>
