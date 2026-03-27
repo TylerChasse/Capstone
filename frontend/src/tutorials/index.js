@@ -3,6 +3,7 @@ import gettingStarted from './gettingStarted';
 import theFundamentals from './theFundamentals';
 import packetProtocols from './packetProtocols';
 import tcpHandshake from './tcpHandshake';
+import dnsResolution from './dnsResolution';
 import macAddresses from './macAddresses';
 import ttl from './ttl';
 import packetLengths from './packetLengths';
@@ -14,6 +15,7 @@ const tutorials = {
   'the-basics': theFundamentals,
   'packet-protocols': packetProtocols,
   'tcp-handshake': tcpHandshake,
+  'dns-resolution': dnsResolution,
   'mac-addresses': macAddresses,
   'ttl': ttl,
   'packet-lengths': packetLengths,

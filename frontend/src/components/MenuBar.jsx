@@ -16,6 +16,7 @@ const TUTORIAL_MENU = [
     label: 'Intermediate', children: [
       { id: 'mac-addresses', label: 'MAC Addresses' },
       { id: 'ttl', label: 'TTL (Time to Live)' },
+      { id: 'dns-resolution', label: 'DNS Resolution' },
     ]
   },
   {
