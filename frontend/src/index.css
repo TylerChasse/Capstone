@@ -75,13 +75,13 @@ body {
   position: absolute;
   top: 100%;
   left: 0;
-  background: #1a2744;
-  border: 1px solid #333;
+  background: #ffffff;
+  border: 1px solid #ddd;
   border-radius: 4px;
   padding: 4px 0;
   min-width: 200px;
   z-index: 1000;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
   -webkit-app-region: no-drag;
 }
 
@@ -93,26 +93,26 @@ body {
   text-align: left;
   background: none;
   border: none;
-  color: #ccc;
+  color: #333;
   padding: 6px 14px;
   font-size: 13px;
   cursor: pointer;
 }
 
 .menu-dropdown button:hover {
-  background: #2a3a5c;
-  color: #eee;
+  background: #e8e8e8;
+  color: #111;
 }
 
 .menu-dropdown .shortcut {
-  color: #666;
+  color: #999;
   font-size: 11px;
   margin-left: 24px;
 }
 
 .menu-dropdown .menu-separator {
   height: 1px;
-  background: #333;
+  background: #e0e0e0;
   margin: 4px 0;
 }
 
@@ -693,60 +693,47 @@ th {
   color: #bbf7d0;
 }
 
-/* Tutorials dropdown in header */
-.tutorial-dropdown {
+/* Tutorials submenu flyout */
+.tutorial-menu-group {
   position: relative;
 }
 
-.tutorial-dropdown-toggle {
-  white-space: nowrap;
-}
-
-.tutorial-dropdown-menu {
-  position: absolute;
-  top: calc(100% + 4px);
-  left: 0;
-  background: #1a2744;
-  border: 1px solid #333;
-  border-radius: 6px;
-  padding: 4px 0;
-  min-width: 220px;
-  z-index: 100;
-  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
-}
-
-.tutorial-menu-item,
-.tutorial-menu-group-toggle {
-  display: block;
+.tutorial-menu-group-btn {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
   width: 100%;
-  text-align: left;
   background: none;
   border: none;
-  color: #ccc;
-  padding: 7px 14px;
+  color: #333;
+  padding: 6px 14px;
   font-size: 13px;
   cursor: pointer;
-  border-radius: 0;
+  text-align: left;
 }
 
-.tutorial-menu-item:hover,
-.tutorial-menu-group-toggle:hover {
-  background: #2a3a5c;
-  color: #eee;
+.tutorial-menu-group:hover > .tutorial-menu-group-btn {
+  background: #e8e8e8;
+  color: #111;
 }
 
-.tutorial-menu-separator {
-  height: 1px;
-  background: #333;
-  margin: 4px 0;
+.tutorial-menu-arrow {
+  font-size: 9px;
+  margin-left: 12px;
+  color: #888;
 }
 
-.tutorial-menu-children {
-  background: #141e35;
-}
-
-.tutorial-menu-child {
-  padding-left: 28px;
+.tutorial-menu-flyout {
+  position: absolute;
+  left: 100%;
+  top: 0;
+  background: #ffffff;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  padding: 4px 0;
+  min-width: 180px;
+  z-index: 1001;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 /* Tutorial Modal */

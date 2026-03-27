@@ -169,18 +169,20 @@ function MenuBar({ onExport, onImport, onShowProtocolColors, onOpenTutorial }) {
                 }
                 if (item.children) {
                   return (
-                    <div key={item.label} className="tutorial-menu-group">
-                      <button
-                        onClick={() => setExpandedGroup(expandedGroup === item.label ? null : item.label)}
-                      >
-                        {item.label} {expandedGroup === item.label ? '▲' : '▼'}
+                    <div
+                      key={item.label}
+                      className="tutorial-menu-group"
+                      onMouseEnter={() => setExpandedGroup(item.label)}
+                      onMouseLeave={() => setExpandedGroup(null)}
+                    >
+                      <button className="tutorial-menu-group-btn">
+                        {item.label} <span className="tutorial-menu-arrow">&#9654;</span>
                       </button>
                       {expandedGroup === item.label && (
-                        <div>
+                        <div className="tutorial-menu-flyout">
                           {item.children.map((child) => (
                             <button
                               key={child.id}
-                              className="tutorial-menu-child"
                               onClick={() => handleTutorialSelect(child.id)}
                             >
                               {child.label}
