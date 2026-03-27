@@ -9,13 +9,141 @@ body {
   font-size: 14px;
   background: #1a1a2e;
   color: #eee;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.app-root {
+  display: flex;
+  flex-direction: column;
+  height: 100vh;
+  overflow: hidden;
 }
 
 .app-layout {
   display: flex;
   flex-direction: row;
-  height: 100vh;
+  flex: 1;
+  min-height: 0;
   overflow: hidden;
+}
+
+/* ---- Custom Menu Bar / Title Bar ---- */
+.menu-bar {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  background: #ffffff;
+  height: 32px;
+  -webkit-app-region: drag;
+  user-select: none;
+  flex-shrink: 0;
+  border-bottom: 1px solid #ddd;
+}
+
+.menu-bar-menus {
+  display: flex;
+  align-items: center;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.menu-item {
+  position: relative;
+  height: 100%;
+  display: flex;
+  align-items: center;
+}
+
+.menu-item > button {
+  background: none;
+  border: none;
+  color: #444;
+  padding: 0 12px;
+  height: 100%;
+  font-size: 12px;
+  cursor: pointer;
+}
+
+.menu-item > button:hover,
+.menu-item > button.active {
+  background: #e0e0e0;
+  color: #111;
+}
+
+.menu-dropdown {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  background: #1a2744;
+  border: 1px solid #333;
+  border-radius: 4px;
+  padding: 4px 0;
+  min-width: 200px;
+  z-index: 1000;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.4);
+  -webkit-app-region: no-drag;
+}
+
+.menu-dropdown button {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  width: 100%;
+  text-align: left;
+  background: none;
+  border: none;
+  color: #ccc;
+  padding: 6px 14px;
+  font-size: 13px;
+  cursor: pointer;
+}
+
+.menu-dropdown button:hover {
+  background: #2a3a5c;
+  color: #eee;
+}
+
+.menu-dropdown .shortcut {
+  color: #666;
+  font-size: 11px;
+  margin-left: 24px;
+}
+
+.menu-dropdown .menu-separator {
+  height: 1px;
+  background: #333;
+  margin: 4px 0;
+}
+
+/* Window Controls */
+.window-controls {
+  display: flex;
+  height: 100%;
+  -webkit-app-region: no-drag;
+}
+
+.win-btn {
+  background: none;
+  border: none;
+  color: #444;
+  width: 46px;
+  height: 100%;
+  font-size: 15px;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.win-btn:hover {
+  background: #e0e0e0;
+  color: #111;
+}
+
+.win-btn.win-close:hover {
+  background: #e81123;
+  color: #fff;
 }
 
 .app {
@@ -705,6 +833,86 @@ th {
 .tutorial-counter {
   font-size: 13px;
   color: #888;
+}
+
+/* Glossary Modal */
+.glossary-modal {
+  background: #16213e;
+  border: 1px solid #333;
+  border-radius: 12px;
+  padding: 28px 32px 24px;
+  width: 90%;
+  max-width: 560px;
+  max-height: 80vh;
+  display: flex;
+  flex-direction: column;
+  position: relative;
+}
+
+.glossary-title {
+  font-size: 18px;
+  font-weight: 600;
+  color: #eee;
+  margin-bottom: 16px;
+}
+
+.glossary-search {
+  width: 100%;
+  padding: 8px 12px;
+  border-radius: 6px;
+  border: 1px solid #444;
+  background: #0f3460;
+  color: #eee;
+  font-size: 13px;
+  margin-bottom: 16px;
+  outline: none;
+}
+
+.glossary-search:focus {
+  border-color: #4a9eff;
+}
+
+.glossary-list {
+  overflow-y: auto;
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  padding-right: 4px;
+}
+
+.glossary-list::-webkit-scrollbar {
+  width: 6px;
+}
+
+.glossary-list::-webkit-scrollbar-thumb {
+  background: #444;
+  border-radius: 3px;
+}
+
+.glossary-entry {
+  border-bottom: 1px solid #2a2a4a;
+  padding-bottom: 10px;
+}
+
+.glossary-term {
+  font-size: 13px;
+  font-weight: 600;
+  color: #7ec8e3;
+  margin-bottom: 4px;
+}
+
+.glossary-def {
+  font-size: 13px;
+  line-height: 1.5;
+  color: #ccc;
+}
+
+.glossary-empty {
+  color: #888;
+  font-size: 13px;
+  text-align: center;
+  padding: 24px 0;
 }
 
 /* Protocol Colors Modal */

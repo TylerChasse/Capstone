@@ -12,8 +12,25 @@ const { contextBridge, ipcRenderer } = require('electron');
 
 // Expose these functions to the React app as window.electronAPI
 contextBridge.exposeInMainWorld('electronAPI', {
+  // File dialogs
   showSaveDialog: (options) => ipcRenderer.invoke('show-save-dialog', options),
   showOpenDialog: (options) => ipcRenderer.invoke('show-open-dialog', options),
-  onOpenTutorial: (callback) => ipcRenderer.on('open-tutorial', (event, tutorialId) => callback(tutorialId)),
-  onShowProtocolColors: (callback) => ipcRenderer.on('show-protocol-colors', () => callback()),
+
+  // Window controls (custom title bar)
+  windowMinimize: () => ipcRenderer.send('window-minimize'),
+  windowMaximize: () => ipcRenderer.send('window-maximize'),
+  windowClose: () => ipcRenderer.send('window-close'),
+  appQuit: () => ipcRenderer.send('app-quit'),
+
+  // View actions
+  windowReload: () => ipcRenderer.send('window-reload'),
+  windowForceReload: () => ipcRenderer.send('window-force-reload'),
+  windowToggleDevTools: () => ipcRenderer.send('window-toggle-devtools'),
+  windowResetZoom: () => ipcRenderer.send('window-reset-zoom'),
+  windowZoomIn: () => ipcRenderer.send('window-zoom-in'),
+  windowZoomOut: () => ipcRenderer.send('window-zoom-out'),
+  windowToggleFullscreen: () => ipcRenderer.send('window-toggle-fullscreen'),
+
+  // External links
+  openExternal: (url) => ipcRenderer.send('open-external', url),
 });

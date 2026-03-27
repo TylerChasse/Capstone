@@ -12,7 +12,7 @@
  * Communication between them uses IPC (Inter-Process Communication).
  */
 
-const { app, BrowserWindow, ipcMain, dialog, Menu, shell } = require('electron');
+const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
 const path = require('path');
 
 let mainWindow;
@@ -25,6 +25,7 @@ function createWindow() {
   mainWindow = new BrowserWindow({
     width: 1200,
     height: 800,
+    frame: false,                // Remove native title bar — custom menu bar in React
     webPreferences: {
       nodeIntegration: false,    // Security: don't expose Node.js to renderer
       contextIsolation: true,    // Security: isolate preload script context
@@ -45,56 +46,9 @@ function createWindow() {
 // APP LIFECYCLE
 // =============================================================================
 
-// Build custom application menu
-function createMenu() {
-  const template = [
-    {
-      label: 'File',
-      submenu: [
-        { role: 'quit' }
-      ]
-    },
-    {
-      label: 'View',
-      submenu: [
-        { role: 'reload' },
-        { role: 'forceReload' },
-        { role: 'toggleDevTools' },
-        { type: 'separator' },
-        { role: 'resetZoom' },
-        { role: 'zoomIn' },
-        { role: 'zoomOut' },
-        { type: 'separator' },
-        { role: 'togglefullscreen' }
-      ]
-    },
-    {
-      label: 'Help',
-      submenu: [
-        {
-          label: 'Protocol Colors',
-          click: () => {
-            mainWindow.webContents.send('show-protocol-colors');
-          }
-        },
-        { type: 'separator' },
-        {
-          label: 'Documentation',
-          click: () => {
-            shell.openExternal('https://github.com/TylerChasse/Capstone');
-          }
-        }
-      ]
-    }
-  ];
-
-  const menu = Menu.buildFromTemplate(template);
-  Menu.setApplicationMenu(menu);
-}
-
 // Create window when Electron is ready
 app.whenReady().then(() => {
-  createMenu();
+  Menu.setApplicationMenu(null);   // Remove native menu entirely (prevents Alt key popup)
   createWindow();
 });
 
@@ -138,3 +92,31 @@ ipcMain.handle('show-open-dialog', async (event, options) => {
   });
   return result;
 });
+
+// =============================================================================
+// IPC HANDLERS - Window Controls & View Actions
+// =============================================================================
+// Custom menu bar needs IPC to control the window since native frame is removed
+
+ipcMain.on('window-minimize', () => mainWindow.minimize());
+ipcMain.on('window-maximize', () => {
+  if (mainWindow.isMaximized()) mainWindow.unmaximize();
+  else mainWindow.maximize();
+});
+ipcMain.on('window-close', () => mainWindow.close());
+ipcMain.on('app-quit', () => app.quit());
+
+ipcMain.on('window-reload', () => mainWindow.reload());
+ipcMain.on('window-force-reload', () => mainWindow.webContents.reloadIgnoringCache());
+ipcMain.on('window-toggle-devtools', () => mainWindow.webContents.toggleDevTools());
+ipcMain.on('window-reset-zoom', () => mainWindow.webContents.setZoomLevel(0));
+ipcMain.on('window-zoom-in', () => {
+  mainWindow.webContents.setZoomLevel(mainWindow.webContents.getZoomLevel() + 0.5);
+});
+ipcMain.on('window-zoom-out', () => {
+  mainWindow.webContents.setZoomLevel(mainWindow.webContents.getZoomLevel() - 0.5);
+});
+ipcMain.on('window-toggle-fullscreen', () => {
+  mainWindow.setFullScreen(!mainWindow.isFullScreen());
+});
+ipcMain.on('open-external', (event, url) => shell.openExternal(url));

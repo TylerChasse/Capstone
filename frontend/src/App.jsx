@@ -16,6 +16,7 @@
 import { useState, useEffect, useRef, useMemo, useCallback } from 'react';
 import * as api from './api';
 import {
+  MenuBar,
   Header,
   Controls,
   StatusBar,
@@ -125,21 +126,6 @@ function App() {
   // Load interfaces when app first mounts
   useEffect(() => {
     loadInterfaces();
-  }, []);
-
-  // Listen for tutorial open events from Electron menu
-  useEffect(() => {
-    if (window.electronAPI?.onOpenTutorial) {
-      window.electronAPI.onOpenTutorial((tutorialId) => {
-        const tutorial = tutorials[tutorialId];
-        if (tutorial) setActiveTutorial(tutorial);
-      });
-    }
-    if (window.electronAPI?.onShowProtocolColors) {
-      window.electronAPI.onShowProtocolColors(() => {
-        setShowProtocolColors(true);
-      });
-    }
   }, []);
 
   // Apply/remove tutorial highlight on UI elements
@@ -418,7 +404,13 @@ function App() {
   // -------------------------------------------------------------------------
 
   return (
-    <div className="app-layout">
+    <div className="app-root">
+      <MenuBar
+        onExport={handleExport}
+        onImport={handleImport}
+        onShowProtocolColors={() => setShowProtocolColors(true)}
+      />
+      <div className="app-layout">
       <div className="app">
         <Header
           interfaces={interfaces}
@@ -428,9 +420,6 @@ function App() {
           isCapturing={isCapturing}
           loading={loading}
           onRefresh={loadInterfaces}
-          onExport={handleExport}
-          onImport={handleImport}
-          canExport={packets.length > 0}
           interfaceLevel={interfaceLevel}
           onLevelChange={setInterfaceLevel}
           onOpenTutorial={(id) => {
@@ -511,6 +500,7 @@ function App() {
       {showProtocolColors && (
         <ProtocolColorsModal onClose={() => setShowProtocolColors(false)} />
       )}
+    </div>
     </div>
   );
 }

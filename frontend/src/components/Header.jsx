@@ -35,9 +35,6 @@ function Header({
   isCapturing,
   loading,
   onRefresh,
-  onExport,
-  onImport,
-  canExport,
   interfaceLevel,
   onLevelChange,
   onOpenTutorial,
@@ -155,12 +152,6 @@ function Header({
             <option value="intermediate">Intermediate</option>
             <option value="advanced">Advanced</option>
           </select>
-        </div>
-        <div className="control-group">
-          <button data-highlight="export-button" onClick={onExport} disabled={!canExport}>
-            Export
-          </button>
-          <button data-highlight="import-button" onClick={onImport}>Import</button>
         </div>
       </div>
     </div>

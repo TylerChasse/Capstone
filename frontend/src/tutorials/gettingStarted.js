@@ -30,8 +30,8 @@ export default new Tutorial({
     }),
     new Frame({
       title: 'Import/Export Packets',
-      text: 'Packets in your packet table can be exported to a JSON file by selecting the "Export" button at the top right. Packets can be imported back in from a valid JSON file using the "Import" button',
-      highlight: ['export-button', 'import-button'],
+      text: 'Packets in your packet table can be exported to a JSON file by selecting "Export Capture" from the File menu at the top of the application. Packets can be imported back in from a valid JSON file using "Import Capture". You can also use Ctrl+E to export and Ctrl+I to import.',
+      highlight: 'file-menu',
     }),
     new Frame({
       title: 'Use Tutorials',
