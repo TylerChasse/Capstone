@@ -43,7 +43,9 @@ function Header({
 
       <div className="header-controls">
         <div className="level-selector" data-highlight="level-selector">
-          <label>Detail Level:</label>
+          <label title="Controls how much detail is shown throughout the tool. Higher levels show more advanced information.">
+            Detail Level:
+          </label>
           <select
             value={interfaceLevel}
             onChange={(e) => onLevelChange(e.target.value)}
