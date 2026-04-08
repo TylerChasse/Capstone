@@ -13,9 +13,55 @@
  */
 
 const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
+const { spawn } = require('child_process');
 const path = require('path');
 
+// Disable GPU acceleration to prevent black screen on some Windows systems
+app.disableHardwareAcceleration();
+
 let mainWindow;
+let backendProcess;
+
+// =============================================================================
+// BACKEND PROCESS
+// =============================================================================
+
+function startBackend() {
+  let cmd, args, opts;
+
+  if (app.isPackaged) {
+    // Production: run the bundled api.exe from extraResources
+    cmd = path.join(process.resourcesPath, 'api.exe');
+    args = [];
+    opts = { windowsHide: true };
+  } else {
+    // Development: run api.py directly with Python from the venv
+    const apiScript = path.join(__dirname, '../../backend/api.py');
+    cmd = 'C:\\Python313\\python.exe';
+    args = [apiScript];
+    opts = { windowsHide: false };
+  }
+
+  backendProcess = spawn(cmd, args, opts);
+
+  backendProcess.stdout?.on('data', (data) => {
+    console.log('[backend]', data.toString().trim());
+  });
+  backendProcess.stderr?.on('data', (data) => {
+    console.error('[backend]', data.toString().trim());
+  });
+  backendProcess.on('exit', (code) => {
+    console.log(`[backend] exited with code ${code}`);
+    backendProcess = null;
+  });
+}
+
+function stopBackend() {
+  if (backendProcess) {
+    backendProcess.kill();
+    backendProcess = null;
+  }
+}
 
 // =============================================================================
 // WINDOW CREATION
@@ -35,11 +81,12 @@ function createWindow() {
 
   // In development, load from Vite dev server (hot reload)
   // In production, load the built files
-  if (process.env.NODE_ENV !== 'production') {
-    mainWindow.loadURL('http://localhost:5173');
-  } else {
+  if (app.isPackaged) {
     mainWindow.loadFile(path.join(__dirname, '../dist/index.html'));
+  } else {
+    mainWindow.loadURL('http://localhost:5173');
   }
+
 }
 
 // =============================================================================
@@ -48,6 +95,7 @@ function createWindow() {
 
 // Create window when Electron is ready
 app.whenReady().then(() => {
+  startBackend();
   Menu.setApplicationMenu(null);   // Remove native menu entirely (prevents Alt key popup)
   createWindow();
 });
@@ -57,6 +105,11 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
+});
+
+// Kill the backend before the app exits
+app.on('before-quit', () => {
+  stopBackend();
 });
 
 // macOS: re-create window when dock icon is clicked

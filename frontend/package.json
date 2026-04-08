@@ -7,7 +7,32 @@
     "dev": "vite",
     "build": "vite build",
     "electron": "electron .",
-    "start": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\""
+    "start": "concurrently \"vite\" \"wait-on http://localhost:5173 && electron .\"",
+    "dist": "vite build && electron-builder"
+  },
+  "build": {
+    "appId": "com.networkanalyzer.app",
+    "productName": "Network Analyzer",
+    "files": [
+      "dist/**/*",
+      "electron/**/*",
+      "node_modules/**/*"
+    ],
+    "extraResources": [
+      {
+        "from": "../backend/dist/api.exe",
+        "to": "api.exe"
+      }
+    ],
+    "win": {
+      "target": "nsis",
+      "requestedExecutionLevel": "requireAdministrator"
+    },
+    "nsis": {
+      "oneClick": false,
+      "allowToChangeInstallationDirectory": true,
+      "createDesktopShortcut": true
+    }
   },
   "dependencies": {
     "react": "^18.2.0",
@@ -19,6 +44,7 @@
     "@vitejs/plugin-react": "^4.0.0",
     "concurrently": "^8.2.0",
     "electron": "^27.0.0",
+    "electron-builder": "^24.0.0",
     "vite": "^5.0.0",
     "wait-on": "^7.0.0"
   }

@@ -11,6 +11,11 @@ env/
 ENV/
 .venv
 virtualenv/
+NetworkAnalyzer/
+
+# Node
+frontend/node_modules/
+frontend/dist/
 
 # PyCharm
 .idea/
@@ -45,6 +50,7 @@ wheels/
 # PyInstaller
 *.manifest
 *.spec
+!backend/api.spec
 
 # Unit test / coverage reports
 htmlcov/
@@ -118,6 +124,8 @@ tests/debug_capture.py
 *.swp
 *.swo
 *~
+nul
+tmpclaude-*
 
 # Logs
 *.log
