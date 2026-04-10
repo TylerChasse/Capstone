@@ -13,8 +13,49 @@
  */
 
 const { app, BrowserWindow, ipcMain, dialog, shell, Menu } = require('electron');
-const { spawn } = require('child_process');
+const { spawn, execSync } = require('child_process');
 const path = require('path');
+
+// =============================================================================
+// WIRESHARK CHECK
+// =============================================================================
+
+function isTsharkAvailable() {
+  const candidates = [
+    'tshark',
+    'C:\\Program Files\\Wireshark\\tshark.exe',
+    'C:\\Program Files (x86)\\Wireshark\\tshark.exe',
+  ];
+  for (const cmd of candidates) {
+    try {
+      execSync(`"${cmd}" -v`, { stdio: 'ignore' });
+      return true;
+    } catch {}
+  }
+  return false;
+}
+
+async function enforceWireshark() {
+  if (isTsharkAvailable()) return true;
+
+  const { response } = await dialog.showMessageBox({
+    type: 'error',
+    title: 'Wireshark Required',
+    message: 'Wireshark is not installed.',
+    detail:
+      'Network Analyzer requires Wireshark to capture packets.\n\n' +
+      'Please install Wireshark (which includes tshark), then relaunch the app.',
+    buttons: ['Download Wireshark', 'Quit'],
+    defaultId: 0,
+    cancelId: 1,
+  });
+
+  if (response === 0) {
+    shell.openExternal('https://www.wireshark.org/download.html');
+  }
+  app.quit();
+  return false;
+}
 
 // Disable GPU acceleration to prevent black screen on some Windows systems
 app.disableHardwareAcceleration();
@@ -26,7 +67,20 @@ let backendProcess;
 // BACKEND PROCESS
 // =============================================================================
 
+function killPort(port) {
+  try {
+    const result = execSync(`netstat -ano | findstr :${port}`, { encoding: 'utf8' });
+    for (const line of result.trim().split('\n')) {
+      if (line.includes('LISTENING')) {
+        const pid = line.trim().split(/\s+/).pop();
+        execSync(`taskkill /F /PID ${pid}`, { stdio: 'ignore' });
+      }
+    }
+  } catch {}
+}
+
 function startBackend() {
+  killPort(8000);
   let cmd, args, opts;
 
   if (app.isPackaged) {
@@ -58,9 +112,46 @@ function startBackend() {
 
 function stopBackend() {
   if (backendProcess) {
-    backendProcess.kill();
+    const pid = backendProcess.pid;
     backendProcess = null;
+    try {
+      execSync(`taskkill /F /T /PID ${pid}`, { stdio: 'ignore' });
+    } catch {}
   }
+  killPort(8000);
+}
+
+function waitForBackend(url, timeoutMs = 30000) {
+  const http = require('http');
+  const start = Date.now();
+  return new Promise((resolve, reject) => {
+    function poll() {
+      http.get(url, (res) => {
+        res.resume();
+        resolve();
+      }).on('error', () => {
+        if (Date.now() - start > timeoutMs) {
+          reject(new Error('Backend did not start in time'));
+        } else {
+          setTimeout(poll, 250);
+        }
+      });
+    }
+    poll();
+  });
+}
+
+function registerCleanup() {
+  app.on('before-quit', stopBackend);
+  app.on('will-quit', stopBackend);
+  process.on('exit', stopBackend);
+  process.on('SIGINT', () => { stopBackend(); process.exit(0); });
+  process.on('SIGTERM', () => { stopBackend(); process.exit(0); });
+  process.on('uncaughtException', (err) => {
+    console.error('Uncaught exception:', err);
+    stopBackend();
+    process.exit(1);
+  });
 }
 
 // =============================================================================
@@ -94,9 +185,18 @@ function createWindow() {
 // =============================================================================
 
 // Create window when Electron is ready
-app.whenReady().then(() => {
+app.whenReady().then(async () => {
+  registerCleanup();
+  if (!await enforceWireshark()) return;
   startBackend();
   Menu.setApplicationMenu(null);   // Remove native menu entirely (prevents Alt key popup)
+  try {
+    await waitForBackend('http://127.0.0.1:8000');
+  } catch (err) {
+    dialog.showErrorBox('Backend Failed to Start', err.message);
+    app.quit();
+    return;
+  }
   createWindow();
 });
 
@@ -105,11 +205,6 @@ app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
     app.quit();
   }
-});
-
-// Kill the backend before the app exits
-app.on('before-quit', () => {
-  stopBackend();
 });
 
 // macOS: re-create window when dock icon is clicked

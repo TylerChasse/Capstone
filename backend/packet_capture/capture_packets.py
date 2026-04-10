@@ -112,14 +112,10 @@ class PacketCapture:
                 self.capture = pyshark.LiveCapture(
                     interface=self.config.interface,
                     display_filter=self.config.display_filter,
-                    include_raw=True,
-                    use_json=True
                 )
             else:
                 self.capture = pyshark.LiveCapture(
                     interface=self.config.interface,
-                    include_raw=True,
-                    use_json=True
                 )
 
             # Capture packets one at a time using sniff_continuously()
